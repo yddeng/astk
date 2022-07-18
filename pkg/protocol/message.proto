@@ -1,0 +1,76 @@
+syntax = "proto3";
+option go_package = "protocol";
+
+message loginReq{
+    string name = 1;
+    string inet = 2; // 内网地址
+    string net  = 3; // 公网地址
+    string token = 4;
+}
+message loginResp{
+    string code = 1;
+}
+
+message cmdExecReq{
+    string dir  = 1; // 执行目录
+    string name = 2;
+    repeated string args = 3;
+    int32  timeout = 4;
+}
+message cmdExecResp{
+    string code   = 1;
+    string outStr = 2;
+}
+
+message processExecReq{
+    map<string,string> config = 1;
+    string name   = 2;
+    repeated string args = 3; // args of command
+    string dir    = 4;
+    int32  id     = 5;
+}
+message processExecResp{
+    string code  = 1;
+    int32  pid   = 2;
+}
+
+message processSignalReq{
+    int32 pid    = 1;
+    int32 signal = 2;
+}
+message processSignalResp{
+    string code = 1;
+}
+
+message processStateReq{
+    repeated int32  ids = 1;
+}
+message processStateResp{
+    map<int32,processState>  states  = 1;
+}
+message processState{
+    int32  pid     = 1;
+    string state   = 2;
+    string exitMsg = 3;
+    double cpu     = 4;
+    double mem     = 5;
+}
+
+message logFileReq{
+    string filename = 1;
+    int32  payload  = 2;
+}
+message logFileResp{
+    bytes  context = 1;
+}
+
+message heartbeat{}
+
+// 上报物理机状态
+message nodeState{
+    map<string,string> cpu  = 1;
+    map<string,string> mem  = 2;
+    map<string,string> disk = 3;
+    map<string,string> host = 4;
+    map<string,string> net  = 5;
+}
