@@ -92,13 +92,16 @@ func (store *processMgrStore) Load(dataPath string) (err error) {
 		if os.IsNotExist(err) {
 			err = nil
 			processMgr = &ProcessMgr{
-				GenID:   0,
-				Groups:  map[string]struct{}{},
-				Process: map[int]*Process{},
+				GenID:     0,
+				Process:   map[int]*Process{},
+				TagLabels: map[string]struct{}{},
+				TagNodes:  map[string]struct{}{},
 			}
+			processMgr.refreshLabels()
 		}
 		return
 	}
+	processMgr.refreshLabels()
 	return
 }
 

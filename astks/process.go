@@ -60,9 +60,29 @@ type Process struct {
 }
 
 type ProcessMgr struct {
-	GenID   int                 `json:"genId"`
-	Process map[int]*Process    `json:"process"`
-	Labels  map[string]struct{} `json:"labels"`
+	GenID     int                 `json:"genId"`
+	Process   map[int]*Process    `json:"process"`
+	TagLabels map[string]struct{} `json:"_"`
+	TagNodes  map[string]struct{} `json:"_"`
+}
+
+func (mgr *ProcessMgr) refreshLabels() {
+	labels := map[string]struct{}{"label1": {}, "label2": {}}
+	nodes := map[string]struct{}{"node1": {}, "node2": {}}
+	for _, v := range mgr.Process {
+		if _, ok := nodes[v.Node]; !ok {
+			nodes[v.Node] = struct{}{}
+		}
+
+		for label := range v.Labels {
+			if _, ok := labels[label]; !ok {
+				labels[label] = struct{}{}
+			}
+		}
+	}
+
+	mgr.TagLabels = labels
+	mgr.TagNodes = nodes
 }
 
 func processTick() {

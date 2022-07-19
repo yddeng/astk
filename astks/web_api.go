@@ -189,7 +189,7 @@ type pageData struct {
 	PageNo     int         `json:"pageNo"`
 	PageSize   int         `json:"pageSize"`
 	TotalCount int         `json:"totalCount"`
-	Data       interface{} `json:"data"`
+	Data       interface{} `json:"dataList"`
 }
 
 func listRange(pageNo, pageSize, length int) (start int, end int) {
@@ -216,6 +216,7 @@ func initHandler(app *gin.Engine) {
 	nodeHandle := new(nodeHandler)
 	nodeGroup := app.Group("/node")
 	nodeGroup.POST("/list", warpHandle(nodeHandle.List))
+	nodeGroup.POST("/names", warpHandle(nodeHandle.Names))
 	nodeGroup.POST("/remove", warpHandle(nodeHandle.Remove))
 
 	cmdHandle := new(cmdHandler)
@@ -229,9 +230,7 @@ func initHandler(app *gin.Engine) {
 
 	processHandle := new(processHandler)
 	processGroup := app.Group("/process")
-	processGroup.POST("/glist", warpHandle(processHandle.GroupList))
-	processGroup.POST("/gadd", warpHandle(processHandle.GroupAdd))
-	processGroup.POST("/gremove", warpHandle(processHandle.GroupRemove))
+	processGroup.POST("/tags", warpHandle(processHandle.Tags))
 	processGroup.POST("/list", warpHandle(processHandle.List))
 	processGroup.POST("/create", warpHandle(processHandle.Create))
 	processGroup.POST("/delete", warpHandle(processHandle.Delete))

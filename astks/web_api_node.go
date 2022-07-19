@@ -52,6 +52,17 @@ func (*nodeHandler) List(wait *WaitConn, user string, req struct {
 	wait.Done()
 }
 
+func (*nodeHandler) Names(wait *WaitConn, user string) {
+	log.Printf("%s by(%s)\n", wait.route, user)
+
+	s := make([]string, 0, len(nodes))
+	for _, n := range nodes {
+		s = append(s, n.Name)
+	}
+	wait.SetResult("", s)
+	wait.Done()
+}
+
 func (*nodeHandler) Remove(wait *WaitConn, user string, req struct {
 	Name string `json:"name"`
 }) {

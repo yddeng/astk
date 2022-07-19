@@ -1,18 +1,17 @@
 <template>
   <div id="content">
     <div style="height:36px;line-height:36px;text-align:center">
-      <img src="@/assets/logo.png" alt="logo" style="width:28px;height:28px;">&nbsp;
-      <span style="font-size:24px;font-weight: 600;">个人云盘</span>
+      <span style="font-size:22px;font-weight: 280;">Application Server Toolkit</span>
     </div>
     <br/>
     <a-form-model  ref="loginFormModel" :model="userInfo" :rules="rules">
       <a-form-model-item  prop="username" >
-        <a-input size="large" v-model="userInfo.username" placeholder="用户名" @keyup.enter="handleLogin">
+        <a-input size="large" v-model="userInfo.username" placeholder="Username" @keyup.enter="handleLogin">
           <a-icon slot="prefix" type="user" />
         </a-input>
       </a-form-model-item>
       <a-form-model-item prop="password">
-        <a-input-password size="large" v-model="userInfo.password" @keyup.enter="handleLogin">
+        <a-input-password size="large" v-model="userInfo.password" placeholder="Password" @keyup.enter="handleLogin">
           <a-icon slot="prefix" type="lock" />
         </a-input-password>
       </a-form-model-item>
@@ -25,7 +24,7 @@
 
 <script>
 import  storage from 'store'
-import { login } from '@/api/api'
+import { login } from '@/api/auth'
 
 export default {
   data(){

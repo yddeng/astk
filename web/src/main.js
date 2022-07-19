@@ -5,6 +5,8 @@ import router from './router'
 import  storage from 'store'
 import 'ant-design-vue/dist/antd.css';
 
+import './global.css'
+
 Vue.config.productionTip = false
 Vue.use(Antd);
 
@@ -12,12 +14,17 @@ Vue.use(Antd);
 import VueClipboard from 'vue-clipboard2'
 Vue.use(VueClipboard)
 
+import ProLayout, { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
+Vue.component('pro-layout', ProLayout)
+Vue.component('page-container', PageHeaderWrapper)
+Vue.component('page-header-wrapper', PageHeaderWrapper)
+
 // http://momentjs.cn/docs/#/use-it/
 import moment from 'moment'
 moment.locale('zh-cn')
 
-const allowList = ['login','fileshared'] // no redirect allowList
-const loginRoutePath = '/filecloud/login'
+const allowList = ['login'] // no redirect allowList
+const loginRoutePath = '/auth/login'
 
 router.beforeEach((to, from, next) => {
   if (to.meta.title){

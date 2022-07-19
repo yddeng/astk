@@ -10,66 +10,60 @@ import (
 
 type processHandler struct{}
 
-func (*processHandler) Labels(wait *WaitConn, user string) {
+func (*processHandler) Tags(wait *WaitConn, user string) {
 	//log.Printf("%s by(%s) \n", wait .route, user)
 	defer func() { wait.Done() }()
-	wait.SetResult("", processMgr.Labels)
-}
 
-func (this *processHandler) LabelAdd(wait *WaitConn, user string, req struct {
-	Label string `json:"label"`
-}) {
-	log.Printf("%s by(%s) %v\n", wait.route, user, req)
-	defer func() { wait.Done() }()
-
-	if _, ok := processMgr.Labels[req.Label]; !ok {
-		processMgr.Labels[req.Label] = struct{}{}
-		saveStore(snProcessMgr)
-	}
-}
-
-func (*processHandler) LabelRemove(wait *WaitConn, user string, req struct {
-	Label string `json:"label"`
-}) {
-	log.Printf("%s by(%s) %v\n", wait.route, user, req)
-	defer func() { wait.Done() }()
-
-	if _, ok := processMgr.Labels[req.Label]; !ok {
-		wait.SetResult("不存在的分组", nil)
-		return
-	}
-
-	for _, v := range processMgr.Process {
-		if _, ok := v.Labels[req.Label]; ok {
-			wait.SetResult("当前分组还存在进程，不允许删除", nil)
-			return
-		}
-	}
-
-	delete(processMgr.Labels, req.Label)
-	saveStore(snProcessMgr)
+	wait.SetResult("", struct {
+		Nodes  map[string]struct{} `json:"nodes"`
+		Labels map[string]struct{} `json:"labels"`
+	}{Nodes: processMgr.TagNodes, Labels: processMgr.TagLabels})
 }
 
 func (*processHandler) List(wait *WaitConn, user string, req struct {
-	Labels map[string]struct{} `json:"labels"`
+	Nodes    map[string]struct{} `json:"nodes"`
+	Labels   map[string]struct{} `json:"labels"`
+	PageNo   int                 `json:"pageNo"`
+	PageSize int                 `json:"pageSize"`
 }) {
 	//log.Printf("%s by(%s) %v\n", wait .route, user, req)
 	defer func() { wait.Done() }()
 
-	if len(req.Labels) == 0 {
-		wait.SetResult("", processMgr.Process)
-	} else {
-		s := make(map[int]*Process, len(processMgr.Process))
-		for _, v := range processMgr.Process {
+	s := make([]*Process, len(processMgr.Process))
+	for _, v := range processMgr.Process {
+		s = append(s, v)
+	}
+
+	if len(req.Nodes) != 0 {
+		for i, v := range s {
+			if _, ok := req.Nodes[v.Node]; !ok {
+				s = append(s[:i], s[i+1:]...)
+			}
+		}
+	}
+
+	if len(req.Labels) != 0 {
+		for i, v := range processMgr.Process {
+			is := false
 			for label := range v.Labels {
 				if _, ok := req.Labels[label]; ok {
-					s[v.ID] = v
+					is = true
 					break
 				}
 			}
+			if !is {
+				s = append(s[:i], s[i+1:]...)
+			}
 		}
-		wait.SetResult("", s)
 	}
+
+	start, end := listRange(req.PageNo, req.PageSize, len(s))
+	wait.SetResult("", pageData{
+		PageNo:     req.PageNo,
+		PageSize:   req.PageSize,
+		TotalCount: len(s),
+		Data:       s[start:end],
+	})
 }
 
 func (this *processHandler) Create(wait *WaitConn, user string, req struct {
@@ -94,13 +88,6 @@ func (this *processHandler) Create(wait *WaitConn, user string, req struct {
 		}
 	}
 
-	for labels := range req.Labels {
-		if _, ok := processMgr.Labels[labels]; !ok {
-			processMgr.Labels[labels] = struct{}{}
-			saveStore(snProcessMgr)
-		}
-	}
-
 	processMgr.GenID++
 	id := processMgr.GenID
 	p := new(Process)
@@ -122,6 +109,7 @@ func (this *processHandler) Create(wait *WaitConn, user string, req struct {
 	p.AutoStartTimes = req.AutoStartTimes
 
 	processMgr.Process[id] = p
+	processMgr.refreshLabels()
 	saveStore(snProcessMgr)
 }
 
@@ -148,13 +136,6 @@ func (this *processHandler) Update(wait *WaitConn, user string, req struct {
 		}
 	}
 
-	for labels := range req.Labels {
-		if _, ok := processMgr.Labels[labels]; !ok {
-			processMgr.Labels[labels] = struct{}{}
-			saveStore(snProcessMgr)
-		}
-	}
-
 	p, ok := processMgr.Process[req.ID]
 	if !ok || !(p.State.Status == common.StateStopped ||
 		p.State.Status == common.StateExited) {
@@ -173,6 +154,7 @@ func (this *processHandler) Update(wait *WaitConn, user string, req struct {
 	p.StopWaitSecs = req.StopWaitSecs
 	p.AutoStartTimes = req.AutoStartTimes
 
+	processMgr.refreshLabels()
 	saveStore(snProcessMgr)
 }
 
@@ -190,6 +172,7 @@ func (*processHandler) Delete(wait *WaitConn, user string, req struct {
 	}
 
 	delete(processMgr.Process, req.ID)
+	processMgr.refreshLabels()
 	saveStore(snProcessMgr)
 }
 
