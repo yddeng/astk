@@ -1,0 +1,33 @@
+{
+  "success": 1,
+  "failed": 0,
+  "gen_id": 1,
+  "cmd_map": {
+    "1": {
+      "id": 1,
+      "name": "test",
+      "dir": "",
+      "context": "ls",
+      "args": {},
+      "user": "admin",
+      "update_at": 1658201200,
+      "create_at": 1658201177,
+      "call_no": 1
+    }
+  },
+  "cmd_logs": {
+    "1": [
+      {
+        "id": 1,
+        "create_at": 1658201736,
+        "user": "admin",
+        "dir": "",
+        "node": "astke",
+        "timeout": 60,
+        "context": "ls",
+        "result_at": 1658201736,
+        "result": "astke.go\nastke.json\nastks.go\nastks.json\ndata\n"
+      }
+    ]
+  }
+}
