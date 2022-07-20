@@ -14,7 +14,7 @@ type token struct {
 var (
 	tknUser  = map[string]*token{}
 	userTkn  = map[string]*token{}
-	duration = time.Hour * 2 // Token超时时间
+	duration = time.Hour * 24 // Token超时时间
 )
 
 func addToken(u string) (tkn string) {

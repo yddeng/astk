@@ -5,6 +5,7 @@ import (
 	"amp/back-go/protocol"
 	"github.com/yddeng/dnet/drpc"
 	"log"
+	"sort"
 	"syscall"
 )
 
@@ -23,40 +24,45 @@ func (*processHandler) Tags(wait *WaitConn, user string) {
 func (*processHandler) List(wait *WaitConn, user string, req struct {
 	Nodes    map[string]struct{} `json:"nodes"`
 	Labels   map[string]struct{} `json:"labels"`
+	Status   map[string]struct{} `json:"status"`
 	PageNo   int                 `json:"pageNo"`
 	PageSize int                 `json:"pageSize"`
 }) {
-	//log.Printf("%s by(%s) %v\n", wait .route, user, req)
+	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
 
-	s := make([]*Process, len(processMgr.Process))
+	s := make([]*Process, 0, len(processMgr.Process))
 	for _, v := range processMgr.Process {
-		s = append(s, v)
-	}
-
-	if len(req.Nodes) != 0 {
-		for i, v := range s {
+		if len(req.Nodes) > 0 {
 			if _, ok := req.Nodes[v.Node]; !ok {
-				s = append(s[:i], s[i+1:]...)
+				continue
 			}
 		}
-	}
-
-	if len(req.Labels) != 0 {
-		for i, v := range processMgr.Process {
-			is := false
-			for label := range v.Labels {
+		if len(req.Labels) > 0 {
+			hasLabel := false
+			for _, label := range v.Labels {
 				if _, ok := req.Labels[label]; ok {
-					is = true
+					hasLabel = true
 					break
 				}
 			}
-			if !is {
-				s = append(s[:i], s[i+1:]...)
+			if !hasLabel {
+				continue
 			}
 		}
+
+		if len(req.Status) > 0 {
+			if _, ok := req.Status[v.State.Status]; !ok {
+				continue
+			}
+		}
+
+		s = append(s, v)
 	}
 
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].ID < s[j].ID
+	})
 	start, end := listRange(req.PageNo, req.PageSize, len(s))
 	wait.SetResult("", pageData{
 		PageNo:     req.PageNo,
@@ -67,16 +73,16 @@ func (*processHandler) List(wait *WaitConn, user string, req struct {
 }
 
 func (this *processHandler) Create(wait *WaitConn, user string, req struct {
-	Name           string              `json:"name"`
-	Dir            string              `json:"dir"`
-	Config         []*ProcessConfig    `json:"config"`
-	Command        string              `json:"command"`
-	Labels         map[string]struct{} `json:"labels"`
-	Node           string              `json:"node"`
-	Priority       int                 `json:"priority"`
-	StartSecs      int64               `json:"startSecs"`
-	StopWaitSecs   int64               `json:"stopWaitSecs"`
-	AutoStartTimes int                 `json:"autoStartTimes"`
+	Name           string           `json:"name"`
+	Dir            string           `json:"dir"`
+	Config         []*ProcessConfig `json:"config"`
+	Command        string           `json:"command"`
+	Labels         []string         `json:"labels"`
+	Node           string           `json:"node"`
+	Priority       int              `json:"priority"`
+	StartSecs      int64            `json:"startSecs"`
+	StopWaitSecs   int64            `json:"stopWaitSecs"`
+	AutoStartTimes int              `json:"autoStartTimes"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
@@ -114,17 +120,17 @@ func (this *processHandler) Create(wait *WaitConn, user string, req struct {
 }
 
 func (this *processHandler) Update(wait *WaitConn, user string, req struct {
-	ID             int                 `json:"id"`
-	Name           string              `json:"name"`
-	Dir            string              `json:"dir"`
-	Config         []*ProcessConfig    `json:"config"`
-	Command        string              `json:"command"`
-	Labels         map[string]struct{} `json:"labels"`
-	Node           string              `json:"node"`
-	Priority       int                 `json:"priority"`
-	StartSecs      int64               `json:"startSecs"`
-	StopWaitSecs   int64               `json:"stopWaitSecs"`
-	AutoStartTimes int                 `json:"autoStartTimes"`
+	ID             int              `json:"id"`
+	Name           string           `json:"name"`
+	Dir            string           `json:"dir"`
+	Config         []*ProcessConfig `json:"config"`
+	Command        string           `json:"command"`
+	Labels         []string         `json:"labels"`
+	Node           string           `json:"node"`
+	Priority       int              `json:"priority"`
+	StartSecs      int64            `json:"startSecs"`
+	StopWaitSecs   int64            `json:"stopWaitSecs"`
+	AutoStartTimes int              `json:"autoStartTimes"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()

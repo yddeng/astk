@@ -66,7 +66,6 @@
         size="default"
         data-name="cmdList"
         :columns="columns"
-        :handleMethods="handleDataList"
         :data="loadData"
       >
         <template slot="name" slot-scope="text" >
@@ -173,26 +172,18 @@ export default {
       nodeList(args)
         .then(res => {
           console.log(res);
-          this.nodes = res.data
-          for (const idx in res.data) {
-            const v = res.data[idx]
+          this.nodes = res.dataList
+          for (const idx in res.dataList) {
+            const v = res.dataList[idx]
             if (v.online) {
               this.onlineNodeCnt += 1
             }
           }
         })
     },
-    handleDataList (list) {
-      const tabList = list.map((item) => {
-        return {
-          ...item
-        }
-      })
-      return tabList
-    },
     handleOk () {
       this.$refs.table.refresh()
-            this.visible = false
+      this.visible = false
       this.mdl = {}
     },
     handleCancel () {

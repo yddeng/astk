@@ -7,12 +7,12 @@ const AmpDir = ".amp"
 
 // 程序状态
 const (
-	StateUnknown  = "Unknown"
-	StateStarting = "Starting"
-	StateRunning  = "Running"
-	StateStopping = "Stopping"
-	StateStopped  = "Stopped"
-	StateExited   = "Exited"
+	StateUnknown  = "unknown"
+	StateStarting = "starting"
+	StateRunning  = "running"
+	StateStopping = "stopping"
+	StateStopped  = "stopped"
+	StateExited   = "exited"
 )
 
 const HeartbeatTimeout = 10 * time.Second

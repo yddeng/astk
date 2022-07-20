@@ -1,49 +1,7 @@
 <template>
-
-  <page-header-wrapper
-    :title="false"
-    :breadcrumb="{}"
-  >
-    <template slot="content">
-      <div style="padding: 0px 20px;">
-        <a-row >
-          <a-col :xs="8" :sm="8" :xl="4" class="header-col">
-            <span class="header-card-title"><a-icon type="team"/> 总计</span><br/>
-            <span class="header-card-value">{{ status.length }}</span><br/>
-          </a-col>
-          <a-col :xs="8" :sm="8" :xl="4" class="header-col">
-            <span class="header-card-title"><a-icon type="alert" /> 预警中</span><br/>
-            <span class="header-card-value">{{ status.alert }}</span><br/>
-          </a-col>
-          <a-col :xs="8" :sm="8" :xl="4" class="header-col">
-            <span class="header-card-title">
-              <a-tooltip title="节点离线，服务正处于Starting、Running、Stopping，不确定将要转换的状态">
-                <a-icon type="question-circle"/>
-              </a-tooltip> 未知
-            </span><br/>
-            <span class="header-card-value">{{ status.unknown }}</span><br/>
-          </a-col>
-          <a-col :xs="8" :sm="8" :xl="4" class="header-col">
-            <span class="header-card-title"><a-icon type="loading"/> 运行中</span><br/>
-            <span class="header-card-value" style="color:#1ABB9C;">{{ status.running }}</span>
-            <span v-show="status.starting > 0 "><a-icon type="caret-left" />{{ status.starting }}</span>
-          </a-col>
-          <a-col :xs="8" :sm="8" :xl="4" class="header-col">
-            <span class="header-card-title"><a-icon type="stop"/> 已停止</span><br/>
-            <span class="header-card-value">{{ status.stopped }}</span>
-            <span v-show="status.stopping > 0 "><a-icon type="caret-left" />{{ status.stopping }}</span>
-          </a-col>
-          <a-col :xs="8" :sm="8" :xl="4" class="header-col">
-            <span class="header-card-title"><a-icon type="close"/> 已失败</span><br/>
-            <span class="header-card-value" style="color:red">{{ status.exited }}</span><br/>
-          </a-col>
-        </a-row>
-      </div>
-    </template>
-
-    
-    <a-card :bordered="false">
-    <div style="marginLeft:6px;marginBottom:10px;font-size: 16px;">
+  <div>
+    <a-card :bordered="false" style="marginBottom:20px;">
+      <div style="marginLeft:6px;marginBottom:10px;font-size: 16px;">
         <span style="marginRight:12px">节点:</span>
         <template v-for="tag in tags.nodes">
           <a-checkable-tag
@@ -69,7 +27,7 @@
           </a-checkable-tag>
         </template>
       </div>
-      <div style="marginLeft:6px;marginBottom:10px;font-size: 16px;">
+      <div style="marginLeft:6px;font-size: 16px;">
         <span style="marginRight:12px">状态:</span>
         <template v-for="tag in tags.status">
           <a-checkable-tag
@@ -78,23 +36,45 @@
             :checked="selectedTags.status.indexOf(tag) > -1"
             @change="checked => onTagChange('status',tag, checked)"
           >
-            {{ tag }}
+            {{ tag | statusIn18}}
           </a-checkable-tag>
         </template>
       </div>
-      <div :style="{ marginBottom: '24px' }">
-        <a-button
-          type="primary"
-          value="small"
-          @click="openEdit(null,'create')"
-          icon="plus"
-        >创建命令</a-button>
+    </a-card>
+    <a-card :bordered="false" >
+      <div style="marginBottom:10px;height: 32px;">
+        <a-row justify="space-between" type="flex">
+          <a-col> 
+            共有<span style="color:darkgoldenrod"> {{data.totalCount}} </span>个进程 &nbsp;&nbsp;
+            <a @click="()=>{this.$refs.table.refresh()}" ><a-icon type="sync" :rotate="45" /></a>
+          </a-col>
+          <a-col style="marginRight:10px;">
+            <!-- <a @click="()=>{this.$refs.table.refresh()}" ><a-icon type="sync" :rotate="45" /></a>
+            <a-divider type="vertical" /> -->
+            <a @click="openEdit(null,'create')" >新增进程</a>
+            <a-divider type="vertical" />
+            <a-dropdown >
+              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+              批量操作<a-icon type="down" />
+              </a>
+              <a-menu slot="overlay">
+                <a-menu-item key="0">
+                  <a >全部启动</a>
+                </a-menu-item>
+                <a-menu-item key="1">
+                  <a >全部停止</a>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
+          </a-col>
+        </a-row>
       </div>
       <s-table
-        rowKey="name"
+        rowKey="id"
         ref="table"
         size="default"
         data-name="dataList"
+        :loading="false"
         :columns="columns"
         :data="loadProcess"
       >
@@ -104,76 +84,66 @@
           </a-tooltip>
           <span v-else>{{ text }}</span>
         </template>
-        <template slot="context" slot-scope="text" >
-          <a-tooltip v-if="text.length > 30" :title="text" style="color:#00BFFF">
-            {{ text.slice(0, 30) + '...' }}
+        <template slot="node" slot-scope="text" >
+          <a-tooltip v-if="text.length > 10" :title="text">
+            {{ text.slice(0, 10) + '...' }}
           </a-tooltip>
-          <a-tooltip v-else :title="text" style="color:#00BFFF">
-            {{ text }}
-          </a-tooltip>
-          <a-tooltip >
-            <template slot="title">{{ copyTitle }}</template>
-            <a-icon
-              type="copy"
-              v-clipboard:copy="text"
-              @click="copyClick"/>
-          </a-tooltip>
+          <span v-else>{{ text }}</span>
         </template>
-
-        <template slot="action" slot-scope="text, record">
+        <template slot="status" slot-scope="text, record" >
+          <a-tag :color="tagStatusColor(record.state.status)">{{record.state.status}}</a-tag>
+          <span v-if="record.state.status==='running'">Pid:{{ record.state.pid }},Age: {{ record.state.timestamp | showAge }} </span>
+        </template>
+        <template slot="bell" >
+          <a-switch checked-children="开" un-checked-children="关" default-checked />
+        </template>
+        <template slot="action" slot-scope="text, item">
           <div >
-            <a @click="execPage(record)">执行</a>
+            <a v-show="item.state.status === 'exited' || item.state.status === 'stopped'" @click="startProcess(item.id)">启动</a>
+            <a v-show="item.state.status === 'running'" @click="stopProcess(item.id)">停止</a>
             <a-divider type="vertical" />
-            <a @click="showEdit('edit',record)">修改</a>
-            <a-divider type="vertical" />
-            <a @click="logPage(record)">日志</a>
-            <a-divider type="vertical" />
-            <a-popconfirm title="确定要删除吗？" @confirm="deleteCmd(record)">
-              <a-icon slot="icon" type="question-circle-o" style="color: red" />
-              <a style="color:red;">删除</a>
-            </a-popconfirm>
+            <a @click="openEdit(item,'edit')">配置</a>
+            <template v-if="item.state.status === 'exited' || item.state.status === 'stopped'">
+              <a-divider type="vertical" />
+              <a-popconfirm title="确定要删除吗？" @confirm="deleteProcess(item.id)">
+                <a-icon slot="icon" type="question-circle-o" style="color: red" />
+                <a style="color:red;">删除</a>
+              </a-popconfirm>
+            </template>
           </div>
         </template>
       </s-table>
     </a-card>
-    
-  </page-header-wrapper>
+
+
+  </div>
 </template>
 <script>
 import { tags, processList, processDelete, processStart, processStop } from '@/api/process'
 import STable from '@/components/Table'
 import moment from 'moment'
-
 const columns = [
   {
-    title: 'ID',
+    title: '进程名',
     dataIndex: 'name',
-    scopedSlots: { customRender: 'name' }
+    scopedSlots: { customRender: 'name' },
+    width:'10%'
   },
   {
-    title: '命令内容',
-    dataIndex: 'context',
-    scopedSlots: { customRender: 'context' }
+    title: '部署节点',
+    dataIndex: 'node',
+    scopedSlots: { customRender: 'node' },
+    width:'10%'
   },
   {
-    title: '执行次数',
-    align: 'center',
-    customRender: (text) => text + ' 次',
-    dataIndex: 'call_no'
+    title: '状态',
+    scopedSlots: { customRender: 'status' },
+    width:'40%'
   },
   {
-    title: '创建时间',
-    dataIndex: 'create_at',
-    customRender: (text) => moment.unix(text).format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    title: '最后修改人',
-    dataIndex: 'user'
-  },
-  {
-    title: '最后修改时间',
-    dataIndex: 'update_at',
-    customRender: (text) => moment.unix(text).format('YYYY-MM-DD HH:mm:ss')
+    title: '订阅报警',
+    scopedSlots: { customRender: 'bell' },
+    width:'10%'
   },
   {
     title: '操作',
@@ -183,7 +153,7 @@ const columns = [
 export default {
   name: 'ProcessList',
   components:{
-    STable,
+    's-table':STable,
   },
   data () {
     return {
@@ -198,18 +168,15 @@ export default {
         labels:[],
         status:[]
       },
-      status: {
-        alert: 0,
-        unknown: 0,
-        starting: 0,
-        running: 0,
-        exited: 0,
-        stopping: 0,
-        stopped: 0,
-        length: 0,
+      data: {
+        totalCount: 0,
         process: []
       },
-      ticker: null
+      loadInterval:2000,
+      ticker: null,
+
+      editVisible:false,
+
     }
   },
   mounted () {
@@ -218,15 +185,24 @@ export default {
       this.path = this.$route.params.path
     }
     this.loadTags()
-    this.ticker = setInterval(() => {
-      this.$refs.table.refresh()
-    }, 2000)
+    // this.ticker = setInterval(() => {
+    //   this.$refs.table.refresh()
+    // }, 5000)
   },
   filters: {
     showAge (time) {
       // const age = moment().unix() - time
       // return moment.unix(age).format('YYYY-MM-DD hh:mm:ss')
       return moment.unix(time).fromNow(true)
+    },
+    statusIn18(status){
+      const s = ['unknown','starting','running','exited','stopping','stopped']
+      const m = ['未知','启动中','运行中','报错','停止中','已停止']
+      const i = s.indexOf(status)
+      if (i !== -1){
+        return m[i]
+      }
+      return m[0]
     }
   },
   destroyed () {
@@ -265,38 +241,22 @@ export default {
     loadProcess (parameter) {
       let nodes = {}
       let labels = {}
-      for (let v in this.selectedTags.nodes){
+      let status = {}
+      for (let v of this.selectedTags.nodes){
         nodes[v] = {}
       }
-      for (let v in this.selectedTags.labels){
+      for (let v of this.selectedTags.labels){
         labels[v] = {}
       }
-      const args = { nodes:nodes,labels:labels,...parameter}
-      // console.log(args);
+      for (let v of this.selectedTags.status){
+        status[v] = {}
+      }
+      const args = { nodes:nodes,labels:labels,status:status,...parameter}
       return processList(args).then(res => {
-        this.status = { alert: 0, unknown: 0, starting: 0, running: 0, exited: 0, stopped: 0, stopping: 0, length: 0, process: [] }
-        this.status.process.push({})
-        // console.log(res)
-        for (const v in res.data) {
-          console.log(v)
-          this.status.length += 1
-          this.status.process.push(v)
-          if (v.state.status === 'Unknown') {
-            this.status.unknown += 1
-          } else if (v.state.status === 'Running') {
-            this.status.running += 1
-          } else if (v.state.status === 'Starting') {
-            this.status.starting += 1
-          } else if (v.state.status === 'Stopping') {
-            this.status.stopping += 1
-          } else if (v.state.status === 'Stopped') {
-            this.status.stopped += 1
-          } else {
-            this.status.exited += 1
-          }
-        }
-         return res
-        })
+        this.data={totalCount:res.totalCount}
+        console.log(res)
+        return res
+      })
     },
     startProcess (id) {
       processStart({ id: id }).then(() => {
@@ -333,6 +293,14 @@ export default {
         }
       }
     },
+    tagStatusColor(status){
+      const m = ['#E0E0E0','#01B468','#1ABB9C','#FF7575','#D0D0D0','#F0F0F0']
+      const i = this.tags.status.indexOf(status)
+      if (i !== -1){
+        return m[i]
+      }
+      return m[0]
+    },
     progressColor (percent) {
       if (percent >= 80) {
         return 'red'
@@ -355,7 +323,6 @@ export default {
   }
 
   .header-col{
-    border-left:2px solid #ADB2B5;
     padding-left:10px;
   }
 

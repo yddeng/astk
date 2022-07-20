@@ -263,19 +263,21 @@ func (*cmdHandler) Log(wait *WaitConn, user string, req struct {
 	//log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
 
-	if logs, ok := cmdMgr.CmdLogs[req.ID]; !ok {
-		wait.SetResult("不存在的命令名", nil)
-	} else {
-		start, end := listRange(req.PageNo, req.PageSize, len(logs))
-		wait.SetResult("", struct {
-			PageNo     int       `json:"pageNo"`
-			PageSize   int       `json:"pageSize"`
-			TotalCount int       `json:"totalCount"`
-			LogList    []*CmdLog `json:"logList"`
-		}{PageNo: req.PageNo,
-			PageSize:   req.PageSize,
-			TotalCount: len(logs),
-			LogList:    logs[start:end],
-		})
+	logs, ok := cmdMgr.CmdLogs[req.ID]
+	if !ok {
+		logs = []*CmdLog{}
 	}
+
+	start, end := listRange(req.PageNo, req.PageSize, len(logs))
+	wait.SetResult("", struct {
+		PageNo     int       `json:"pageNo"`
+		PageSize   int       `json:"pageSize"`
+		TotalCount int       `json:"totalCount"`
+		LogList    []*CmdLog `json:"logList"`
+	}{PageNo: req.PageNo,
+		PageSize:   req.PageSize,
+		TotalCount: len(logs),
+		LogList:    logs[start:end],
+	})
+
 }

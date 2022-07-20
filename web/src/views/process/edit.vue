@@ -129,13 +129,14 @@
           
           <a-input
             v-if="labelInputVisible"
+            ref="labelInput"
             :style="{ width: '80px' }"
             size="small"
             v-model="labelInputValue"
             @blur="addLabel"
             @keyup.enter="addLabel"
           />
-          <a-tag v-else style="background: #fff; borderStyle: dashed;" @click="()=>{this.labelInputVisible = true}">
+          <a-tag v-else style="background: #fff; borderStyle: dashed;" @click="showLabelInput">
             <a-icon type="plus" /> New Label
           </a-tag>
         </a-form-model-item>
@@ -246,6 +247,12 @@ export default {
     handleLableChange(label, checked){
       const nextSelectedTags = checked ? [...this.form.labels, label] : this.form.labels.filter(t => t !== label);
       this.form.labels = nextSelectedTags;
+    },
+    showLabelInput(){
+      this.labelInputVisible = true
+      this.$nextTick(function() {
+        this.$refs.labelInput.focus();
+      });
     },
     addLabel () {
       if (this.labelInputValue && this.form.labels.indexOf(this.labelInputValue) === -1) {

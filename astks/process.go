@@ -32,15 +32,15 @@ type ProcessState struct {
 }
 
 type Process struct {
-	ID       int                 `json:"id"`
-	Name     string              `json:"name"`
-	Dir      string              `json:"dir"`
-	Config   []*ProcessConfig    `json:"config"`
-	Command  string              `json:"command"`
-	Labels   map[string]struct{} `json:"labels"`
-	Node     string              `json:"node"`
-	User     string              `json:"user"`
-	CreateAt int64               `json:"createAt"`
+	ID       int              `json:"id"`
+	Name     string           `json:"name"`
+	Dir      string           `json:"dir"`
+	Config   []*ProcessConfig `json:"config"`
+	Command  string           `json:"command"`
+	Labels   []string         `json:"labels"`
+	Node     string           `json:"node"`
+	User     string           `json:"user"`
+	CreateAt int64            `json:"createAt"`
 
 	State ProcessState `json:"state"`
 
@@ -74,7 +74,7 @@ func (mgr *ProcessMgr) refreshLabels() {
 			nodes[v.Node] = struct{}{}
 		}
 
-		for label := range v.Labels {
+		for _, label := range v.Labels {
 			if _, ok := labels[label]; !ok {
 				labels[label] = struct{}{}
 			}
