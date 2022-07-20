@@ -1,0 +1,15 @@
+*.exe
+*.out
+*.toml
+*.cfg
+
+*.log
+.idea
+.DS_Store
+
+cmd/astks
+cmd/astke
+
+data/
+log/
+

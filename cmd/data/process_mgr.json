@@ -1,5 +1,5 @@
 {
-  "genId": 13,
+  "genId": 15,
   "process": {
     "1": {
       "id": 1,
@@ -14,9 +14,9 @@
       "user": "admin",
       "createAt": 1658281370,
       "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 0,
+        "status": "exited",
+        "pid": 60203,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -43,7 +43,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -70,7 +70,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -96,7 +96,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304631,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -122,8 +122,60 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304631,
         "exitMsg": "",
+        "autoStartTimes": 0,
+        "cpu": 0,
+        "mem": 0
+      },
+      "priority": 10,
+      "startSecs": 0,
+      "stopWaitSecs": 0,
+      "autoStartTimes": 0
+    },
+    "14": {
+      "id": 14,
+      "name": "center",
+      "dir": "/Users/yidongdeng/workspace/initialthree",
+      "config": [],
+      "command": "./bin/center localhost:8011 initialthree",
+      "labels": [
+        "center"
+      ],
+      "node": "astke",
+      "user": "admin",
+      "createAt": 1658300693,
+      "state": {
+        "status": "stopped",
+        "pid": 0,
+        "timestamp": 1658304722,
+        "exitMsg": "",
+        "autoStartTimes": 0,
+        "cpu": 0,
+        "mem": 0
+      },
+      "priority": 10,
+      "startSecs": 0,
+      "stopWaitSecs": 0,
+      "autoStartTimes": 0
+    },
+    "15": {
+      "id": 15,
+      "name": "dir_1.1.1_dev_123",
+      "dir": "/Users/yidongdeng/workspace/initialthree",
+      "config": [],
+      "command": "./bin/node_dir {{path}}/config.toml Dir 0 initialthree",
+      "labels": [
+        "test"
+      ],
+      "node": "astke",
+      "user": "admin",
+      "createAt": 1658302049,
+      "state": {
+        "status": "exited",
+        "pid": 59905,
+        "timestamp": 1658304631,
+        "exitMsg": "panic: listen tcp 127.0.0.1:8101: bind: address already in use\n\ngoroutine 1 [running]:\ninitialthree/vendor/github.com/hqpko/hutils.Must(...)\n\t/Users/yidongdeng/go/src/initialthree/vendor/github.com/hqpko/hutils/must.go:5\ninitialthree/node/common/config.MustStartCluster(0x162a920, {0x7, 0xc000352a50}, 0x8, {0x17c4dc0, 0xc00000fb30}, {0x0, 0x64, 0xe})\n\t/Users/yidongdeng/go/src/initialthree/node/common/config/config.go:80 +0x9f\nmain.main()\n\t/Users/yidongdeng/go/src/initialthree/node/node_dir/main/node_dir.go:37 +0x2b9\n",
         "autoStartTimes": 0,
         "cpu": 0,
         "mem": 0
@@ -148,7 +200,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304631,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -174,7 +226,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304631,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -200,7 +252,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304631,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -227,7 +279,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -254,7 +306,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -281,7 +333,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -308,7 +360,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 0,
+        "timestamp": 1658304659,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,

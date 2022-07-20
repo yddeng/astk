@@ -1,9 +1,9 @@
 package astks
 
 import (
-	"amp/back-go/common"
-	"amp/back-go/protocol"
 	"fmt"
+	"github.com/yddeng/astk/pkg/common"
+	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"strings"

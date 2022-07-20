@@ -1,11 +1,11 @@
 package astke
 
 import (
-	"amp/back-go/common"
-	"amp/back-go/protocol"
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"github.com/yddeng/astk/pkg/common"
+	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet"
 	"github.com/yddeng/dnet/drpc"
 	"github.com/yddeng/utils/task"

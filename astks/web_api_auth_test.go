@@ -1,9 +1,9 @@
 package astks
 
 import (
-	"amp/back-go/util"
 	"fmt"
 	"github.com/tidwall/gjson"
+	"github.com/yddeng/astk/pkg/util"
 	"github.com/yddeng/dnet/dhttp"
 	"testing"
 	"time"

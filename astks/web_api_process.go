@@ -1,8 +1,8 @@
 package astks
 
 import (
-	"amp/back-go/common"
-	"amp/back-go/protocol"
+	"github.com/yddeng/astk/pkg/common"
+	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"sort"
@@ -21,27 +21,18 @@ func (*processHandler) Tags(wait *WaitConn, user string) {
 	}{Nodes: processMgr.TagNodes, Labels: processMgr.TagLabels})
 }
 
-func (*processHandler) List(wait *WaitConn, user string, req struct {
-	Nodes    map[string]struct{} `json:"nodes"`
-	Labels   map[string]struct{} `json:"labels"`
-	Status   map[string]struct{} `json:"status"`
-	PageNo   int                 `json:"pageNo"`
-	PageSize int                 `json:"pageSize"`
-}) {
-	log.Printf("%s by(%s) %v\n", wait.route, user, req)
-	defer func() { wait.Done() }()
-
+func (*processHandler) findProcess(Nodes, Labels, Status map[string]struct{}) []*Process {
 	s := make([]*Process, 0, len(processMgr.Process))
 	for _, v := range processMgr.Process {
-		if len(req.Nodes) > 0 {
-			if _, ok := req.Nodes[v.Node]; !ok {
+		if len(Nodes) > 0 {
+			if _, ok := Nodes[v.Node]; !ok {
 				continue
 			}
 		}
-		if len(req.Labels) > 0 {
+		if len(Labels) > 0 {
 			hasLabel := false
 			for _, label := range v.Labels {
-				if _, ok := req.Labels[label]; ok {
+				if _, ok := Labels[label]; ok {
 					hasLabel = true
 					break
 				}
@@ -51,15 +42,28 @@ func (*processHandler) List(wait *WaitConn, user string, req struct {
 			}
 		}
 
-		if len(req.Status) > 0 {
-			if _, ok := req.Status[v.State.Status]; !ok {
+		if len(Status) > 0 {
+			if _, ok := Status[v.State.Status]; !ok {
 				continue
 			}
 		}
 
 		s = append(s, v)
 	}
+	return s
+}
 
+func (this *processHandler) List(wait *WaitConn, user string, req struct {
+	Nodes    map[string]struct{} `json:"nodes"`
+	Labels   map[string]struct{} `json:"labels"`
+	Status   map[string]struct{} `json:"status"`
+	PageNo   int                 `json:"pageNo"`
+	PageSize int                 `json:"pageSize"`
+}) {
+	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	defer func() { wait.Done() }()
+
+	s := this.findProcess(req.Nodes, req.Labels, req.Status)
 	sort.Slice(s, func(i, j int) bool {
 		return s[i].ID < s[j].ID
 	})
@@ -261,4 +265,69 @@ func (*processHandler) Stop(wait *WaitConn, user string, req struct {
 		p.State.Timestamp = NowUnix()
 		saveStore(snProcessMgr)
 	}
+}
+
+func (this *processHandler) BatchStart(wait *WaitConn, user string, req struct {
+	Nodes  map[string]struct{} `json:"nodes"`
+	Labels map[string]struct{} `json:"labels"`
+	Status map[string]struct{} `json:"status"`
+}) {
+	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+
+	req.Status = map[string]struct{}{"exited": {}, "stopped": {}}
+	s := this.findProcess(req.Nodes, req.Labels, req.Status)
+	// 优先级低的最先启动
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].Priority < s[j].Priority
+	})
+	for _, p := range s {
+		node, ok := nodes[p.Node]
+		if !ok || !node.Online() {
+			continue
+		}
+
+		if err := p.start(node, func(code string, err error) {}); err == nil {
+			p.State = ProcessState{
+				Status:    common.StateStarting,
+				Timestamp: NowUnix(),
+			}
+			saveStore(snProcessMgr)
+		}
+	}
+
+	wait.Done()
+}
+
+func (this *processHandler) BatchStop(wait *WaitConn, user string, req struct {
+	Nodes  map[string]struct{} `json:"nodes"`
+	Labels map[string]struct{} `json:"labels"`
+	Status map[string]struct{} `json:"status"`
+}) {
+	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+
+	req.Status = map[string]struct{}{"running": {}}
+	s := this.findProcess(req.Nodes, req.Labels, req.Status)
+	// 优先级低的最后停止
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].Priority > s[j].Priority
+	})
+	for _, p := range s {
+		node, ok := nodes[p.Node]
+		if !ok || !node.Online() {
+			continue
+		}
+
+		rpcReq := &protocol.ProcessSignalReq{
+			Pid:    p.State.Pid,
+			Signal: int32(syscall.SIGTERM),
+		}
+
+		if err := center.Go(node, rpcReq, drpc.DefaultRPCTimeout, func(i interface{}, e error) {}); err == nil {
+			p.State.Status = common.StateStopping
+			p.State.Timestamp = NowUnix()
+			saveStore(snProcessMgr)
+		}
+	}
+
+	wait.Done()
 }

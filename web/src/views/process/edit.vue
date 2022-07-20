@@ -76,7 +76,7 @@
               <a-icon type="question-circle-o" />
             </a-tooltip>
           </span>
-          <a-input v-model="form.start_secs"/>
+          <a-input v-model="form.startSecs"/>
         </a-form-model-item>
         <a-form-model-item :wrapper-col="{ span: 6}">
           <span slot="label">
@@ -85,7 +85,7 @@
               <a-icon type="question-circle-o" />
             </a-tooltip>
           </span>
-          <a-input v-model="form.stop_wait_secs">
+          <a-input v-model="form.stopWaitSecs">
             <span slot="addonAfter" >秒</span>
           </a-input>
         </a-form-model-item>
@@ -96,7 +96,7 @@
               <a-icon type="question-circle-o" />
             </a-tooltip>
           </span>
-          <a-input v-model="form.auto_start_times"/>
+          <a-input v-model="form.autoStartTimes"/>
         </a-form-model-item>
         <a-form-model-item :wrapper-col="{ span: 14}" prop="labels">
           <span slot="label">
@@ -196,9 +196,9 @@ export default {
         config: [],
         command: '',
         priority: 10,
-        start_secs: 3,
-        stop_wait_secs: 10,
-        auto_start_times: 3,
+        startSecs: 3,
+        stopWaitSecs: 10,
+        autoStartTimes: 3,
         node: '',
         labels: []
       },
@@ -276,10 +276,10 @@ export default {
         if (valid) {
           console.log(this.form)
           const args = { ...this.form }
-          args.auto_start_times = parseInt(this.form.auto_start_times)
+          args.autoStartTimes = parseInt(this.form.autoStartTimes)
           args.priority = parseInt(this.form.priority)
-          args.start_secs = parseInt(this.form.start_secs)
-          args.stop_wait_secs = parseInt(this.form.stop_wait_secs)
+          args.startSecs = parseInt(this.form.startSecs)
+          args.stopWaitSecs = parseInt(this.form.stopWaitSecs)
           if (this.option === 'create' || this.option === 'copy') {
             processCreate(args).then(() => {
               this.goback()

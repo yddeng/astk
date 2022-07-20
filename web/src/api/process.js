@@ -55,3 +55,19 @@ export function processStop (parameter) {
     data: parameter
   })
 }
+
+export function processBatchStart (parameter) {
+  return request({
+    url: "process/batch/start",
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function processBatchStop (parameter) {
+  return request({
+    url: "process/batch/stop",
+    method: 'post',
+    data: parameter
+  })
+}

@@ -1,8 +1,6 @@
 package astke
 
 import (
-	"amp/back-go/protocol"
-	"amp/back-go/util"
 	"encoding/json"
 	"fmt"
 	psCpu "github.com/shirou/gopsutil/cpu"
@@ -10,6 +8,8 @@ import (
 	psHost "github.com/shirou/gopsutil/host"
 	psMem "github.com/shirou/gopsutil/mem"
 	psNet "github.com/shirou/gopsutil/net"
+	"github.com/yddeng/astk/pkg/protocol"
+	"github.com/yddeng/astk/pkg/util"
 	//psProc "github.com/shirou/gopsutil/process"
 	"log"
 	"sync"

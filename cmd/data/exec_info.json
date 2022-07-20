@@ -1,1 +1,18 @@
-{}
+{
+  "1": {
+    "pid": 60203,
+    "stderr": ".amp/test/stderr.log",
+    "id": 1,
+    "name": "test",
+    "state": "exited",
+    "create_time": 1658304659935
+  },
+  "15": {
+    "pid": 59905,
+    "stderr": "/Users/yidongdeng/workspace/initialthree/.amp/dir_1.1.1_dev_123/stderr.log",
+    "id": 15,
+    "name": "dir_1.1.1_dev_123",
+    "state": "exited",
+    "create_time": 1658304631859
+  }
+}

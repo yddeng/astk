@@ -1,9 +1,9 @@
 package astke
 
 import (
-	"amp/back-go/common"
-	"amp/back-go/util"
 	psProc "github.com/shirou/gopsutil/process"
+	"github.com/yddeng/astk/pkg/common"
+	"github.com/yddeng/astk/pkg/util"
 	"io/ioutil"
 	"log"
 	"os"

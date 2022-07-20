@@ -1,10 +1,10 @@
 package astks
 
 import (
-	"amp/back-go/common"
-	"amp/back-go/protocol"
 	"errors"
 	"github.com/golang/protobuf/proto"
+	"github.com/yddeng/astk/pkg/common"
+	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet"
 	"github.com/yddeng/dnet/drpc"
 	"log"

@@ -54,14 +54,14 @@
             <a @click="openEdit(null,'create')" >新增进程</a>
             <a-divider type="vertical" />
             <a-dropdown >
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+              <a class="ant-dropdown-link" >
               批量操作<a-icon type="down" />
               </a>
               <a-menu slot="overlay">
-                <a-menu-item key="0">
+                <a-menu-item key="0" @click="startAllProcess"> 
                   <a >全部启动</a>
                 </a-menu-item>
-                <a-menu-item key="1">
+                <a-menu-item key="1" @click="stopAllProcess">
                   <a >全部停止</a>
                 </a-menu-item>
               </a-menu>
@@ -91,11 +91,18 @@
           <span v-else>{{ text }}</span>
         </template>
         <template slot="status" slot-scope="text, record" >
-          <a-tag :color="tagStatusColor(record.state.status)">{{record.state.status}}</a-tag>
-          <span v-if="record.state.status==='running'">Pid:{{ record.state.pid }},Age: {{ record.state.timestamp | showAge }} </span>
+          <a-popconfirm v-if="record.state.status==='exited'" placement="topRight" trigger="click">
+            <span slot="title" style="white-space:pre-wrap;">{{ record.state.exitMsg }}</span>
+            <a-tag :color="tagStatusColor(record.state.status)">{{record.state.status}}</a-tag>
+          </a-popconfirm>
+          <a-tag v-else :color="tagStatusColor(record.state.status)">{{record.state.status}}</a-tag>
+          <span v-if="record.state.status==='running'">
+            pid:{{ record.state.pid }}, cpu:{{record.state.cpu.toFixed(1)}}, 
+            mem:{{record.state.mem.toFixed(1)}}, age: {{ record.state.timestamp | showAge }}
+          </span>
         </template>
         <template slot="bell" >
-          <a-switch checked-children="开" un-checked-children="关" default-checked />
+          <a-switch size="small" checked-children="开" un-checked-children="关" default-checked />
         </template>
         <template slot="action" slot-scope="text, item">
           <div >
@@ -119,7 +126,8 @@
   </div>
 </template>
 <script>
-import { tags, processList, processDelete, processStart, processStop } from '@/api/process'
+import { tags, processList, processDelete, processStart, processStop,
+processBatchStart, processBatchStop } from '@/api/process'
 import STable from '@/components/Table'
 import moment from 'moment'
 const columns = [
@@ -130,7 +138,7 @@ const columns = [
     width:'10%'
   },
   {
-    title: '部署节点',
+    title: '节点',
     dataIndex: 'node',
     scopedSlots: { customRender: 'node' },
     width:'10%'
@@ -141,7 +149,7 @@ const columns = [
     width:'40%'
   },
   {
-    title: '订阅报警',
+    title: '报警',
     scopedSlots: { customRender: 'bell' },
     width:'10%'
   },
@@ -170,17 +178,13 @@ export default {
       },
       data: {
         totalCount: 0,
-        process: []
+        process:[],
       },
-      loadInterval:2000,
       ticker: null,
-
-      editVisible:false,
 
     }
   },
   mounted () {
-    console.log(this.$route)
     if (this.$route.params.path) {
       this.path = this.$route.params.path
     }
@@ -253,8 +257,7 @@ export default {
       }
       const args = { nodes:nodes,labels:labels,status:status,...parameter}
       return processList(args).then(res => {
-        this.data={totalCount:res.totalCount}
-        console.log(res)
+        this.data={totalCount:res.totalCount,process:res.dataList}
         return res
       })
     },
@@ -278,23 +281,43 @@ export default {
       this.$router.push({ name: 'pedit', params: { option: option, labels: this.tags.labels, item: { ...item } } })
     },
     startAllProcess () {
-      for (const idx in this.status.process) {
-        const item = this.status.process[idx]
-        if (item.id !== undefined && (item.state.status === 'Stopped' || item.state.status === 'Exited')) {
-          this.startProcess(item.id)
-        }
+      let nodes = {}
+      let labels = {}
+      let status = {}
+      for (let v of this.selectedTags.nodes){
+        nodes[v] = {}
       }
+      for (let v of this.selectedTags.labels){
+        labels[v] = {}
+      }
+      for (let v of this.selectedTags.status){
+        status[v] = {}
+      }
+      const args = { nodes:nodes,labels:labels,status:status}
+      processBatchStart(args).then(() => {
+        this.$refs.table.refresh()
+      })
     },
     stopAllProcess () {
-      for (const idx in this.status.process) {
-        const item = this.status.process[idx]
-        if (item.id !== undefined && item.state.status === 'Running') {
-          this.stopProcess(item.id)
-        }
+      let nodes = {}
+      let labels = {}
+      let status = {}
+      for (let v of this.selectedTags.nodes){
+        nodes[v] = {}
       }
+      for (let v of this.selectedTags.labels){
+        labels[v] = {}
+      }
+      for (let v of this.selectedTags.status){
+        status[v] = {}
+      }
+      const args = { nodes:nodes,labels:labels,status:status}
+      processBatchStop(args).then(() => {
+        this.$refs.table.refresh()
+      })
     },
     tagStatusColor(status){
-      const m = ['#E0E0E0','#01B468','#1ABB9C','#FF7575','#D0D0D0','#F0F0F0']
+      const m = ['#E0E0E0','#01B468','#1ABB9C','#FF7575','#D0D0D0','#D0D0D0']
       const i = this.tags.status.indexOf(status)
       if (i !== -1){
         return m[i]
