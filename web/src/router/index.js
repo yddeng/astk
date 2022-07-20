@@ -37,8 +37,8 @@ export const asyncRouterMap = [
       {
         name:'node',
         path: '/node',
-        meta:{title:'节点状态',icon:'user'},
-        component: () => import('@/views/home/index')
+        meta:{title:'节点状态',icon:'cloud-server'},
+        component: () => import('@/views/node/list')
       },
       {
         name:'cmdlist',
@@ -63,7 +63,7 @@ export const asyncRouterMap = [
       {
         name:"plist",
         path: '/process/list',
-        meta:{title:'应用部署',icon:'delete'},
+        meta:{title:'应用部署',icon:'project'},
         component: () => import('@/views/process/list')
       },
       {

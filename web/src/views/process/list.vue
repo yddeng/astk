@@ -36,7 +36,7 @@
             :checked="selectedTags.status.indexOf(tag) > -1"
             @change="checked => onTagChange('status',tag, checked)"
           >
-            {{ tag | statusIn18}}
+            {{ tag }}
           </a-checkable-tag>
         </template>
       </div>

@@ -146,13 +146,13 @@
       "user": "admin",
       "createAt": 1658300693,
       "state": {
-        "status": "unknown",
-        "pid": 65957,
+        "status": "stopped",
+        "pid": 0,
         "timestamp": 1658305327,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0.012785351558946277,
-        "mem": 0.0826120376586914
+        "cpu": 0,
+        "mem": 0
       },
       "priority": 10,
       "startSecs": 0,
