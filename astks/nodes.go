@@ -3,6 +3,7 @@ package astks
 import (
 	"errors"
 	"github.com/golang/protobuf/proto"
+	"github.com/yddeng/astk/pkg/codec"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet"
@@ -37,7 +38,7 @@ func (c *Center) Go(n *node, data proto.Message, timeout time.Duration, callback
 func (c *Center) startListener() error {
 	return c.acceptor.ServeFunc(func(conn net.Conn) {
 		dnet.NewTCPSession(conn,
-			dnet.WithCodec(new(protocol.Codec)),
+			dnet.WithCodec(new(codec.Codec)),
 			dnet.WithTimeout(common.HeartbeatTimeout, 0),
 			dnet.WithErrorCallback(func(session dnet.Session, err error) {
 				log.Println(err)
@@ -51,8 +52,8 @@ func (c *Center) startListener() error {
 						err = c.rpcServer.OnRPCRequest(&node{session: session}, data.(*drpc.Request))
 					case *drpc.Response:
 						err = c.rpcClient.OnRPCResponse(data.(*drpc.Response))
-					case *protocol.Message:
-						c.dispatchMsg(session, data.(*protocol.Message))
+					case *codec.Message:
+						c.dispatchMsg(session, data.(*codec.Message))
 					}
 					if err != nil {
 						log.Println(err)
@@ -74,12 +75,12 @@ func (c *Center) startListener() error {
 
 }
 
-func (c *Center) dispatchMsg(session dnet.Session, msg *protocol.Message) {
+func (c *Center) dispatchMsg(session dnet.Session, msg *codec.Message) {
 	cmd := msg.GetCmd()
 	switch cmd {
-	case protocol.CmdHeartbeat:
+	case codec.CmdHeartbeat:
 		_ = session.Send(msg)
-	case protocol.CmdNodeState:
+	case codec.CmdNodeState:
 		ctx := session.Context()
 		if ctx != nil {
 			node := ctx.(*node)

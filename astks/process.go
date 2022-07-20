@@ -232,7 +232,7 @@ func (p *Process) start(node *node, callback func(code string, err error)) error
 		configs[cfg.Name] = cfg.Context
 	}
 
-	cmd := strings.ReplaceAll(p.Command, "{{path}}", fmt.Sprintf("%s/%s", common.AmpDir, p.Name))
+	cmd := strings.ReplaceAll(p.Command, "{{path}}", fmt.Sprintf("%s/%s", common.Dir, p.Name))
 	rpcReq := &protocol.ProcessExecReq{
 		Id:     int32(p.ID),
 		Dir:    p.Dir,

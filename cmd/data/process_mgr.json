@@ -15,8 +15,8 @@
       "createAt": 1658281370,
       "state": {
         "status": "exited",
-        "pid": 60203,
-        "timestamp": 1658304659,
+        "pid": 65801,
+        "timestamp": 1658305312,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -146,13 +146,13 @@
       "user": "admin",
       "createAt": 1658300693,
       "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658304722,
+        "status": "unknown",
+        "pid": 65957,
+        "timestamp": 1658305327,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
+        "cpu": 0.012785351558946277,
+        "mem": 0.0826120376586914
       },
       "priority": 10,
       "startSecs": 0,
@@ -173,9 +173,9 @@
       "createAt": 1658302049,
       "state": {
         "status": "exited",
-        "pid": 59905,
-        "timestamp": 1658304631,
-        "exitMsg": "panic: listen tcp 127.0.0.1:8101: bind: address already in use\n\ngoroutine 1 [running]:\ninitialthree/vendor/github.com/hqpko/hutils.Must(...)\n\t/Users/yidongdeng/go/src/initialthree/vendor/github.com/hqpko/hutils/must.go:5\ninitialthree/node/common/config.MustStartCluster(0x162a920, {0x7, 0xc000352a50}, 0x8, {0x17c4dc0, 0xc00000fb30}, {0x0, 0x64, 0xe})\n\t/Users/yidongdeng/go/src/initialthree/node/common/config/config.go:80 +0x9f\nmain.main()\n\t/Users/yidongdeng/go/src/initialthree/node/node_dir/main/node_dir.go:37 +0x2b9\n",
+        "pid": 66178,
+        "timestamp": 1658305347,
+        "exitMsg": "panic: open .astk/dir_1.1.1_dev_123/config.toml: no such file or directory\n\ngoroutine 1 [running]:\ninitialthree/vendor/github.com/hqpko/hutils.Must(...)\n\t/Users/yidongdeng/go/src/initialthree/vendor/github.com/hqpko/hutils/must.go:5\nmain.main()\n\t/Users/yidongdeng/go/src/initialthree/node/node_dir/main/node_dir.go:28 +0x4ab\n",
         "autoStartTimes": 0,
         "cpu": 0,
         "mem": 0

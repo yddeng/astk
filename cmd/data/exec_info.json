@@ -1,18 +1,26 @@
 {
   "1": {
-    "pid": 60203,
-    "stderr": ".amp/test/stderr.log",
+    "pid": 65801,
+    "stderr": ".astk/test/stderr.log",
     "id": 1,
     "name": "test",
     "state": "exited",
-    "create_time": 1658304659935
+    "create_time": 1658305312760
+  },
+  "14": {
+    "pid": 65957,
+    "stderr": "/Users/yidongdeng/workspace/initialthree/.astk/center/stderr.log",
+    "id": 14,
+    "name": "center",
+    "state": "running",
+    "create_time": 1658305327447
   },
   "15": {
-    "pid": 59905,
-    "stderr": "/Users/yidongdeng/workspace/initialthree/.amp/dir_1.1.1_dev_123/stderr.log",
+    "pid": 66178,
+    "stderr": "/Users/yidongdeng/workspace/initialthree/.astk/dir_1.1.1_dev_123/stderr.log",
     "id": 15,
     "name": "dir_1.1.1_dev_123",
     "state": "exited",
-    "create_time": 1658304631859
+    "create_time": 1658305347570
   }
 }

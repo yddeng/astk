@@ -2,6 +2,7 @@ package astke
 
 import (
 	"bytes"
+	"github.com/yddeng/astk/pkg/codec"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
@@ -60,7 +61,7 @@ func (er *Executor) onProcExec(replier *drpc.Replier, req interface{}) {
 	}
 
 	// 创建文件目录
-	fileDir := path.Join(msg.GetDir(), common.AmpDir, msg.GetName())
+	fileDir := path.Join(msg.GetDir(), common.Dir, msg.GetName())
 	if err := os.MkdirAll(fileDir, os.ModePerm); err != nil {
 		_ = replier.Reply(&protocol.ProcessExecResp{Code: err.Error()}, nil)
 		return
@@ -166,8 +167,8 @@ func (er *Executor) onLogFile(replier *drpc.Replier, req interface{}) {
 
 	if file, err := os.Open(msg.GetFilename()); err == nil {
 		payload := int64(msg.GetPayload())
-		if payload > protocol.BuffSize-(protocol.HeadSize+100) {
-			payload = protocol.BuffSize - (protocol.HeadSize + 100)
+		if payload > codec.BuffSize-(codec.HeadSize+100) {
+			payload = codec.BuffSize - (codec.HeadSize + 100)
 		}
 		info, _ := file.Stat()
 		size := info.Size()

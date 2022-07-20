@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"github.com/yddeng/astk/pkg/codec"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet"
@@ -40,7 +41,7 @@ func (er *Executor) SendMessage(msg proto.Message) error {
 	if er.session == nil {
 		return errors.New("session is nil")
 	}
-	return er.session.Send(protocol.NewMessage(msg))
+	return er.session.Send(codec.NewMessage(msg))
 }
 
 func (er *Executor) SendRequest(req *drpc.Request) error {
@@ -99,7 +100,7 @@ func (er *Executor) onConnected(conn net.Conn) {
 		log.Printf("onConnected center %s", conn.RemoteAddr().String())
 		er.dialing = false
 		er.session = dnet.NewTCPSession(conn,
-			dnet.WithCodec(new(protocol.Codec)),
+			dnet.WithCodec(new(codec.Codec)),
 			dnet.WithErrorCallback(func(session dnet.Session, err error) {
 				log.Println(err)
 				session.Close(err)
@@ -112,8 +113,8 @@ func (er *Executor) onConnected(conn net.Conn) {
 						err = er.rpcServer.OnRPCRequest(er, data.(*drpc.Request))
 					case *drpc.Response:
 						err = er.rpcClient.OnRPCResponse(data.(*drpc.Response))
-					case *protocol.Message:
-						er.dispatchMsg(session, data.(*protocol.Message))
+					case *codec.Message:
+						er.dispatchMsg(session, data.(*codec.Message))
 					}
 					if err != nil {
 						log.Println(err)
@@ -181,7 +182,7 @@ func (er *Executor) tick() {
 	}
 }
 
-func (er *Executor) dispatchMsg(session dnet.Session, msg *protocol.Message) {}
+func (er *Executor) dispatchMsg(session dnet.Session, msg *codec.Message) {}
 
 var er *Executor
 
