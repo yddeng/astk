@@ -36,7 +36,7 @@ type Process struct {
 	ID         int32  `json:"id"`
 	Name       string `json:"name"`
 	State      string `json:"state"`
-	CreateTime int64  `json:"create_time"`
+	CreateTime int64  `json:"createTime"`
 
 	process *psProc.Process
 	mu      sync.Mutex

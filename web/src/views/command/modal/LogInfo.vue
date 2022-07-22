@@ -16,11 +16,11 @@
       </a-descriptions>
       <a-descriptions>
         <a-descriptions-item label="状态">
-          <span v-if="record.result_at >0" style="color:#3CB371">已完成</span>
+          <span v-if="record.resultAt >0" style="color:#3CB371">已完成</span>
           <span v-else style="color:#48D1CC">执行中</span>
         </a-descriptions-item>
-        <a-descriptions-item label="创建时间">{{ record.create_at | formatDate }}</a-descriptions-item>
-        <a-descriptions-item v-if="record.result_at > 0" label="执行时长">{{ record.result_at - record.create_at }} 秒</a-descriptions-item>
+        <a-descriptions-item label="创建时间">{{ record.createAt | formatDate }}</a-descriptions-item>
+        <a-descriptions-item v-if="record.resultAt > 0" label="执行时长">{{ record.resultAt - record.createAt }} 秒</a-descriptions-item>
       </a-descriptions>
       <a-descriptions>
         <a-descriptions-item label="执行节点">{{ record.node }}</a-descriptions-item>

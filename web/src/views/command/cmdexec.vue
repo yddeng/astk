@@ -16,7 +16,7 @@
           :wrapper-col="{ span: 20 }"
         >
           <a-form-model-item label="命令类型">
-            <span>SHELL</span>
+            <span>{{form.type}}</span>
           </a-form-model-item>
           <a-form-model-item label="命令内容" >
             <a-textarea
@@ -122,7 +122,7 @@ export default {
       },
       spinning: false,
 
-       logInfoVisible: false,
+      logInfoVisible: false,
       logInfoCmd: '',
       logInfoRecord: {}
     }
@@ -141,8 +141,8 @@ export default {
       const args = { pageNo: 1, pageSize: 1000 }
       nodeList(args)
         .then(res => {
-          for (const idx in res.data) {
-            const v = res.data[idx]
+          for (const idx in res.dataList) {
+            const v = res.dataList[idx]
             if (v.online) {
               this.nodes.push(v)
             }
@@ -160,11 +160,9 @@ export default {
             timeout: parseInt(this.form.timeout)
           }
           const tout = (this.form.timeout + 6) * 1000
-          console.log(tout, this.form, args)
           this.spinning = true
           cmdExec(tout, args)
             .then(res => {
-              console.log(res)
               this.spinning = false
               this.showLogInfo(res)
             })
@@ -187,7 +185,7 @@ export default {
     },
     showLogInfo (record) {
       this.logInfoVisible = true
-      this.logInfoCmd = this.cmdName
+      this.logInfoCmd = this.form.name
       this.logInfoRecord = record
     },
     logInfoCancel () {

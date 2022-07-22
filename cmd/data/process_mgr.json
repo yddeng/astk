@@ -15,35 +15,8 @@
       "createAt": 1658281370,
       "state": {
         "status": "exited",
-        "pid": 65801,
-        "timestamp": 1658305312,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "10": {
-      "id": 10,
-      "name": "test9",
-      "dir": "",
-      "config": [],
-      "command": "g",
-      "labels": [
-        "test",
-        "label1"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658288389,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658304659,
+        "pid": 49330,
+        "timestamp": 1658458226,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -70,33 +43,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658304659,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "12": {
-      "id": 12,
-      "name": "程序名1235435的噶分",
-      "dir": "",
-      "config": [],
-      "command": "收费",
-      "labels": [
-        "label2"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658296762,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658304631,
+        "timestamp": 1658455879,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -122,7 +69,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658304631,
+        "timestamp": 1658455879,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -148,7 +95,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658305327,
+        "timestamp": 1658455885,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -173,35 +120,9 @@
       "createAt": 1658302049,
       "state": {
         "status": "exited",
-        "pid": 66178,
-        "timestamp": 1658305347,
+        "pid": 24297,
+        "timestamp": 1658455879,
         "exitMsg": "panic: open .astk/dir_1.1.1_dev_123/config.toml: no such file or directory\n\ngoroutine 1 [running]:\ninitialthree/vendor/github.com/hqpko/hutils.Must(...)\n\t/Users/yidongdeng/go/src/initialthree/vendor/github.com/hqpko/hutils/must.go:5\nmain.main()\n\t/Users/yidongdeng/go/src/initialthree/node/node_dir/main/node_dir.go:28 +0x4ab\n",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "2": {
-      "id": 2,
-      "name": "test1",
-      "dir": "",
-      "config": [],
-      "command": "t",
-      "labels": [
-        "label2"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658282337,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658304631,
-        "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
         "mem": 0
@@ -226,33 +147,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658304631,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "4": {
-      "id": 4,
-      "name": "test4",
-      "dir": "",
-      "config": [],
-      "command": "st",
-      "labels": [
-        "label2"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658288301,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658304631,
+        "timestamp": 1658455879,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -279,34 +174,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658304659,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "7": {
-      "id": 7,
-      "name": "test6",
-      "dir": "",
-      "config": [],
-      "command": "gte",
-      "labels": [
-        "test",
-        "label1"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658288355,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658304659,
+        "timestamp": 1658455879,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -333,7 +201,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658304659,
+        "timestamp": 1658455879,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -360,7 +228,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658304659,
+        "timestamp": 1658455879,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,

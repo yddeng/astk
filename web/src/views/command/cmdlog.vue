@@ -35,7 +35,7 @@
         </template>
 
         <template slot="statue" slot-scope="text, record">
-          <span v-if="record.result_at > 0" style="color:#3CB371">已完成</span>
+          <span v-if="record.resultAt > 0" style="color:#3CB371">已完成</span>
           <span v-else style="color:#48D1CC">执行中</span>
         </template>
 
@@ -59,7 +59,7 @@
 
 <script>
 import moment from 'moment'
-import  STable  from '@/components/Table'
+import  STable from '@/components/Table'
 import { cmdLog } from '@/api/command'
 import LogInfo from './modal/LogInfo'
 
@@ -75,7 +75,7 @@ const columns = [
   },
   {
     title: '执行时间',
-    dataIndex: 'create_at',
+    dataIndex: 'createAt',
     customRender: (text) => moment.unix(text).format('YYYY-MM-DD HH:mm:ss')
   },
   {

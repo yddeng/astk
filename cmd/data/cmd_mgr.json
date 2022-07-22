@@ -1,33 +1,58 @@
 {
-  "success": 1,
+  "success": 3,
   "failed": 0,
-  "gen_id": 2,
-  "cmd_map": {
+  "genId": 2,
+  "cmdMap": {
     "1": {
       "id": 1,
+      "type": "shell",
       "name": "test",
       "dir": "",
       "context": "ls",
       "args": {},
       "user": "admin",
-      "update_at": 1658201200,
-      "create_at": 1658201177,
-      "call_no": 1
+      "updateAt": 1658201200,
+      "createAt": 1658201177,
+      "execAt": 1658455309,
+      "callNo": 3
     }
   },
-  "cmd_logs": {
+  "cmdLogs": {
     "1": [
       {
-        "id": 1,
-        "create_at": 1658201736,
+        "id": 3,
+        "createAt": 1658455309,
         "user": "admin",
         "dir": "",
         "node": "astke",
         "timeout": 60,
         "context": "ls",
-        "result_at": 1658201736,
+        "resultAt": 1658455309,
+        "result": "astke.go\nastke.json\nastks.go\nastks.json\ndata\n"
+      },
+      {
+        "id": 2,
+        "createAt": 1658455048,
+        "user": "admin",
+        "dir": "",
+        "node": "astke",
+        "timeout": 60,
+        "context": "ls",
+        "resultAt": 1658455048,
+        "result": "astke.go\nastke.json\nastks.go\nastks.json\ndata\n"
+      },
+      {
+        "id": 1,
+        "createAt": 1658201736,
+        "user": "admin",
+        "dir": "",
+        "node": "astke",
+        "timeout": 60,
+        "context": "ls",
+        "resultAt": 1658201736,
         "result": "astke.go\nastke.json\nastks.go\nastks.json\ndata\n"
       }
     ]
-  }
+  },
+  "cmdTasks": null
 }

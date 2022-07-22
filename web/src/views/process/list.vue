@@ -44,10 +44,7 @@
     <a-card :bordered="false" >
       <div style="marginBottom:10px;height: 32px;">
         <a-row justify="space-between" type="flex">
-          <a-col> 
-            共有<span style="color:darkgoldenrod"> {{data.totalCount}} </span>个进程 &nbsp;&nbsp;
-            <a @click="()=>{this.$refs.table.refresh()}" ><a-icon type="sync" :rotate="45" /></a>
-          </a-col>
+          <a-col>共有<span style="color:darkgoldenrod"> {{data.totalCount}} </span>个进程</a-col>
           <a-col style="marginRight:10px;">
             <!-- <a @click="()=>{this.$refs.table.refresh()}" ><a-icon type="sync" :rotate="45" /></a>
             <a-divider type="vertical" /> -->
@@ -74,7 +71,7 @@
         ref="table"
         size="middle"
         data-name="dataList"
-        :loading="false"
+        :isLoading="false"
         :columns="columns"
         :data="loadProcess"
       >
@@ -108,7 +105,9 @@
           <div >
             <a v-show="item.state.status === 'exited' || item.state.status === 'stopped'" @click="startProcess(item.id)">启动</a>
             <a v-show="item.state.status === 'running'" @click="stopProcess(item.id)">停止</a>
-            <a-divider type="vertical" />
+            <a-divider 
+              v-show="item.state.status === 'exited' || item.state.status === 'stopped' || item.state.status === 'running'" 
+              type="vertical" />
             <a @click="openEdit(item,'edit')">配置</a>
             <template v-if="item.state.status === 'exited' || item.state.status === 'stopped'">
               <a-divider type="vertical" />
@@ -117,6 +116,8 @@
                 <a style="color:red;">删除</a>
               </a-popconfirm>
             </template>
+            <a-divider type="vertical" />
+            <a @click="openEdit(item,'copy')">复制</a>
           </div>
         </template>
       </s-table>
@@ -196,9 +197,9 @@ export default {
       this.path = this.$route.params.path
     }
     this.loadTags()
-    // this.ticker = setInterval(() => {
-    //   this.$refs.table.refresh()
-    // }, 5000)
+    this.ticker = setInterval(() => {
+      this.$refs.table.refresh()
+    }, 2000)
   },
   filters: {
     showAge (time) {
@@ -265,7 +266,7 @@ export default {
       const args = { nodes:nodes,labels:labels,status:status,...parameter}
       return processList(args).then(res => {
         this.data={totalCount:res.totalCount,process:res.dataList}
-        console.log(res);
+        // console.log(res);
         return res
       })
     },

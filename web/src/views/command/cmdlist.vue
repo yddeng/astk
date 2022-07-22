@@ -231,6 +231,10 @@ const columns = [
     scopedSlots: { customRender: 'name' }
   },
   {
+    title: '命令类型',
+    dataIndex: 'type'
+  },
+  {
     title: '命令内容',
     dataIndex: 'context',
     scopedSlots: { customRender: 'context' }
@@ -239,21 +243,21 @@ const columns = [
     title: '执行次数',
     align: 'center',
     customRender: (text) => text + ' 次',
-    dataIndex: 'call_no'
+    dataIndex: 'callNo'
   },
   {
-    title: '创建时间',
-    dataIndex: 'create_at',
-    customRender: (text) => moment.unix(text).format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    title: '最后修改人',
+    title: '最近修改人',
     dataIndex: 'user'
   },
   {
-    title: '最后修改时间',
-    dataIndex: 'update_at',
+    title: '最近修改时间',
+    dataIndex: 'updateAt',
     customRender: (text) => moment.unix(text).format('YYYY-MM-DD HH:mm:ss')
+  },
+  {
+    title: '最近执行时间',
+    dataIndex: 'execAt',
+    customRender: (text) => text === 0 ? '' :moment.unix(text).format('YYYY-MM-DD HH:mm:ss')
   },
   {
     title: '操作',

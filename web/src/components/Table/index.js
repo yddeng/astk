@@ -27,6 +27,10 @@ export default {
       type: Function,
       required: true
     },
+    isLoading: {
+      type: Boolean,
+      default: true
+    },
     pageNum: {
       type: Number,
       default: 1
@@ -151,7 +155,7 @@ export default {
       this.filters = filters
       this.sorter = sorter
 
-      this.localLoading = true
+      this.localLoading = this.isLoading 
       const parameter = Object.assign({
         pageNo: (pagination && pagination.current) ||
           this.showPagination && this.localPagination.current || this.pageNum,
