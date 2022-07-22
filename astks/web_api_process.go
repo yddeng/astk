@@ -60,7 +60,7 @@ func (this *processHandler) List(wait *WaitConn, user string, req struct {
 	PageNo   int                 `json:"pageNo"`
 	PageSize int                 `json:"pageSize"`
 }) {
-	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	//log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
 
 	s := this.findProcess(req.Nodes, req.Labels, req.Status)

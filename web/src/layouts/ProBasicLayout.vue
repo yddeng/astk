@@ -11,6 +11,7 @@
 
     <template v-slot:menuHeaderRender>
       <div>
+        <a-icon type="global"/>
         <h1>{{ title }}</h1>
       </div>
     </template>
@@ -41,7 +42,7 @@ export default {
       menus: [],
       // 侧栏收起状态
       collapsed: false,
-      title: '应用服务器工具集',
+      title: '综合管理平台',
       settings: {
         // 布局类型
         layout:  'sidemenu', 

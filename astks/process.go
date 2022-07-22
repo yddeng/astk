@@ -67,8 +67,8 @@ type ProcessMgr struct {
 }
 
 func (mgr *ProcessMgr) refreshLabels() {
-	labels := map[string]struct{}{"label1": {}, "label2": {}}
-	nodes := map[string]struct{}{"node1": {}, "node2": {}}
+	labels := map[string]struct{}{}
+	nodes := map[string]struct{}{}
 	for _, v := range mgr.Process {
 		if _, ok := nodes[v.Node]; !ok {
 			nodes[v.Node] = struct{}{}

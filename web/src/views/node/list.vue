@@ -12,16 +12,18 @@
             <a-col :span="4" :offset="1">CPU</a-col>
             <a-col :span="16" >
               <a-progress
+                status="normal"
                 :stroke-color="progressColor(item.state.cpu.usedPercent)"
-                :percent="progressPercent(item.state.cpu.usedPercent)" />
+                :percent="parseFloat(item.state.cpu.usedPercent)" />
             </a-col>
           </a-row>
           <a-row>
             <a-col :span="4" :offset="1">内存</a-col>
             <a-col :span="16" >
               <a-progress
+                status="normal"
                 :stroke-color="progressColor(item.state.mem.virtualUsedPercent)"
-                :percent="progressPercent(item.state.mem.virtualUsedPercent)" />
+                :percent="parseFloat(item.state.mem.virtualUsedPercent)" />
             </a-col>
           </a-row>
           <a-row>
@@ -34,8 +36,9 @@
             <a-col :span="4" :offset="1">硬盘</a-col>
             <a-col :span="16" >
               <a-progress
+                status="normal"
                 :stroke-color="progressColor(item.state.disk.usedPercent)"
-                :percent="progressPercent(item.state.disk.usedPercent)" />
+                :percent="parseFloat(item.state.disk.usedPercent)" />
             </a-col>
           </a-row>
           <a-row><a-col :span="4" :offset="1">状态</a-col><a-col :span="16" ><span style="color:#3CB371">在线</span></a-col></a-row>
@@ -65,10 +68,23 @@
           <a-row><a-col :span="4" :offset="1">网络</a-col><a-col :span="16" ><a-icon type="arrow-down" />0B/s<a-icon type="arrow-up" />0B/s</a-col></a-row>
           <a-row><a-col :span="4" :offset="1">硬盘</a-col><a-col :span="16" ><a-progress :percent="0" /></a-col></a-row>
           <a-row><a-col :span="4" :offset="1">状态</a-col><a-col :span="16" ><span style="color:red">离线</span></a-col></a-row>
-          <a slot="extra" @click="nodeRemove(item.name)">移除</a>
+          <a slot="extra" @click="nodeRemove(item.name)"><a-icon style="color:red" type="delete"/></a>
         </a-card>
       </a-list-item>
     </a-list>
+
+    <div>
+      <a-row justify="center" type="flex"><a-col>
+      <a-pagination
+        :current="pageNo"
+        :pageSize="pageSize"
+        :total="totalCount"
+        @change="onPageChange"
+        hideOnSinglePage
+      />
+      </a-col></a-row>
+    </div>
+
   </div>
 </template>
 
@@ -79,8 +95,11 @@ export default {
   name: 'Home',
   data () {
     return {
+      totalCount:0,
       nodes: [],
-      ticker: null
+      ticker: null,
+      pageNo:1,
+      pageSize:8,
     }
   },
   beforeMount () {
@@ -95,12 +114,17 @@ export default {
   },
   methods: {
     loadNodes () {
-      const args = { pageNo: 0, pageSize: 1000 }
+      const args = { pageNo: this.pageNo, pageSize: this.pageSize }
       nodeList(args)
         .then(res => {
-          // console.log(res)
+          // console.log(res);
+          this.totalCount = res.totalCount
           this.nodes = res.dataList
         })
+    },
+    onPageChange(page){
+      this.pageNo = page
+      this.loadNodes()
     },
     nodeRemove (name) {
       nodeRemove({ name: name })
@@ -114,9 +138,6 @@ export default {
       } else if (percent >= '50') {
         return '#EAC100'
       }
-    },
-    progressPercent (percent) {
-      return parseFloat(percent)
     }
   }
 
