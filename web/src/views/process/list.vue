@@ -72,7 +72,7 @@
       <s-table
         rowKey="id"
         ref="table"
-        size="default"
+        size="middle"
         data-name="dataList"
         :loading="false"
         :columns="columns"
@@ -149,9 +149,16 @@ const columns = [
     width:'40%'
   },
   {
+    title: '重启',
+    dataIndex:'autoStartTimes',
+    scopedSlots: { customRender: 'restart' },
+    minWidth:'50px',
+    width:'5%'
+  },
+  {
     title: '报警',
     scopedSlots: { customRender: 'bell' },
-    width:'10%'
+    width:'5%'
   },
   {
     title: '操作',
@@ -225,7 +232,7 @@ export default {
         for (let k in res.labels){
           this.tags.labels.push(k)
         }
-        //console.log(res,this.tags);
+        // console.log(res,this.tags);
       })
     },
     onTagChange (tt,tag,checked) {
@@ -258,6 +265,7 @@ export default {
       const args = { nodes:nodes,labels:labels,status:status,...parameter}
       return processList(args).then(res => {
         this.data={totalCount:res.totalCount,process:res.dataList}
+        console.log(res);
         return res
       })
     },

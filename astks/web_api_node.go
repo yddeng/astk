@@ -10,7 +10,7 @@ type nodeInfo struct {
 	Name    string              `json:"name"`
 	Inet    string              `json:"inet"`
 	Net     string              `json:"net"`
-	LoginAt int64               `json:"login_at"` // 登陆时间
+	LoginAt int64               `json:"loginAt"` // 登陆时间
 	Online  bool                `json:"online"`
 	State   *protocol.NodeState `json:"state"`
 }

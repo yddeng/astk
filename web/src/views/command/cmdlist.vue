@@ -63,7 +63,7 @@
       <s-table
         rowKey="name"
         ref="table"
-        size="default"
+        size="middle"
         data-name="cmdList"
         :columns="columns"
         :data="loadData"

@@ -46,6 +46,7 @@ func (*cmdHandler) List(wait *WaitConn, user string, req struct {
 }
 
 func (*cmdHandler) Create(wait *WaitConn, user string, req struct {
+	Type    string            `json:"type"`
 	Name    string            `json:"name"`
 	Dir     string            `json:"dir"`
 	Context string            `json:"context"`
@@ -70,6 +71,7 @@ func (*cmdHandler) Create(wait *WaitConn, user string, req struct {
 	cmdMgr.GenID++
 	id := cmdMgr.GenID
 	cmd := &Cmd{
+		Type:     CmdType(req.Type),
 		ID:       id,
 		Name:     req.Name,
 		Dir:      req.Dir,
@@ -192,6 +194,22 @@ func (*cmdHandler) Exec(wait *WaitConn, user string, req struct {
 		req.Timeout = cmdMaxTimeout
 	}
 
+	rpcReq := &protocol.CmdExecReq{
+		Dir:     req.Dir,
+		Timeout: int32(req.Timeout),
+	}
+
+	// 执行类型
+	switch cmd.Type {
+	case CmdTypeShell:
+		rpcReq.Name = "/bin/sh"
+		rpcReq.Args = []string{"-c", context}
+	default:
+		wait.SetResult("命令类型未实现", nil)
+		wait.Done()
+		return
+	}
+
 	// 执行日志
 
 	cmdLog := &CmdLog{
@@ -214,12 +232,6 @@ func (*cmdHandler) Exec(wait *WaitConn, user string, req struct {
 		saveStore(snCmdMgr)
 	}
 
-	rpcReq := &protocol.CmdExecReq{
-		Dir:     req.Dir,
-		Name:    "/bin/sh",
-		Args:    []string{"-c", context},
-		Timeout: int32(req.Timeout),
-	}
 	timeout := time.Second*time.Duration(req.Timeout) + drpc.DefaultRPCTimeout
 	if err := center.Go(node, rpcReq, timeout, func(i interface{}, e error) {
 		if e != nil {
@@ -245,6 +257,7 @@ func (*cmdHandler) Exec(wait *WaitConn, user string, req struct {
 	} else {
 		cmd.doing[req.Node] = struct{}{}
 		cmd.CallNo++
+		cmd.ExecAt = cmdLog.CreateAt
 		cmdLog.ID = cmd.CallNo
 		cmdMgr.CmdLogs[req.ID] = append([]*CmdLog{cmdLog}, cmdMgr.CmdLogs[req.ID]...)
 		if len(cmdMgr.CmdLogs[req.ID]) > cmdLogCapacity {
