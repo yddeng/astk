@@ -71,3 +71,11 @@ export function processBatchStop (parameter) {
     data: parameter
   })
 }
+
+export function processTail (parameter) {
+  return request({
+    url: "process/tail",
+    method: 'post',
+    data: parameter
+  })
+}

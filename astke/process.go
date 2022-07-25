@@ -1,6 +1,8 @@
 package astke
 
 import (
+	"bytes"
+	"fmt"
 	psProc "github.com/shirou/gopsutil/process"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/util"
@@ -38,6 +40,7 @@ type Process struct {
 	State      string `json:"state"`
 	CreateTime int64  `json:"createTime"`
 
+	tailLog *tailLog
 	process *psProc.Process
 	mu      sync.Mutex
 }
@@ -188,6 +191,75 @@ func NewProcess(pid int32) (*Process, error) {
 		process:    p,
 	}
 	return this, nil
+}
+
+const tailLogLine = 10
+
+type tailLog struct {
+	logs         [][]byte // line -> 仅纪录20行数据
+	buff         *bytes.Buffer
+	head, length int32
+	start, end   int32
+}
+
+func newTailLog() *tailLog {
+	return &tailLog{
+		buff:   &bytes.Buffer{},
+		logs:   make([][]byte, 0, tailLogLine),
+		length: 0,
+		start:  0,
+		end:    0,
+	}
+}
+
+func (this *tailLog) Write(p []byte) (n int, err error) {
+	n, err = this.buff.Write(p)
+	if err != nil {
+		return
+	}
+	for {
+		line, err := this.buff.ReadBytes('\n')
+		if err != nil {
+			break
+		}
+
+		if this.length < tailLogLine {
+			this.logs = append(this.logs, line)
+			this.length++
+			this.end++
+		} else {
+			this.logs[this.head] = line
+			this.head = (this.head + 1) % tailLogLine
+			this.start++
+			this.end++
+		}
+	}
+	return
+}
+
+func (this *tailLog) Read(start int32) ([]byte, int32) {
+	if this.length == 0 || start >= this.end {
+		return nil, this.end
+	}
+
+	buff := &bytes.Buffer{}
+	n := this.length
+	if start > this.start {
+		n = this.end - start
+	} else if start < this.start {
+		// 前面日志已经丢失
+		buff.Write([]byte(fmt.Sprintf("------------------\n 已丢弃%d行日志\n------------------\n", this.start-start)))
+	}
+	// fmt.Println(this.length, this.start, this.end, this.head, n)
+
+	if n-this.head > 0 {
+		buff.Write(bytes.Join(this.logs[this.length-n+this.head:], nil))
+		buff.Write(bytes.Join(this.logs[:this.head], nil))
+	} else {
+		buff.Write(bytes.Join(this.logs[this.head-n:this.head], nil))
+	}
+
+	return buff.Bytes(), this.end
 }
 
 var (

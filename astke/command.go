@@ -1,7 +1,6 @@
 package astke
 
 import (
-	"bytes"
 	"errors"
 	"os"
 	"os/exec"
@@ -101,43 +100,4 @@ func CommandWithCmd(cmd *exec.Cmd) *Cmd {
 func Command(name string, args ...string) *Cmd {
 	cmd := exec.Command(name, args...)
 	return CommandWithCmd(cmd)
-}
-
-const defCnt = 10 // 日志缓存行数
-
-type LineBuffer struct {
-	cnt  int
-	line [][]byte
-	buff *bytes.Buffer
-}
-
-func NewLineBuffer(line int) *LineBuffer {
-	return &LineBuffer{
-		cnt:  line,
-		line: make([][]byte, 0, line),
-		buff: &bytes.Buffer{},
-	}
-}
-
-func (this *LineBuffer) Write(p []byte) (n int, err error) {
-	n, err = this.buff.Write(p)
-	if err != nil {
-		return
-	}
-	for {
-		line, err := this.buff.ReadBytes('\n')
-		if err != nil {
-			break
-		}
-		if len(this.line) >= this.cnt {
-			this.line = append(this.line[1:], line)
-		} else {
-			this.line = append(this.line, line)
-		}
-	}
-	return
-}
-
-func (this *LineBuffer) Bytes() []byte {
-	return bytes.Join(this.line, nil)
 }

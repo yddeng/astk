@@ -237,6 +237,7 @@ func initHandler(app *gin.Engine) {
 	processGroup.POST("/update", warpHandle(processHandle.Update))
 	processGroup.POST("/start", warpHandle(processHandle.Start))
 	processGroup.POST("/stop", warpHandle(processHandle.Stop))
+	processGroup.POST("/tail", warpHandle(processHandle.TailLog))
 	processGroup.POST("/batch/start", warpHandle(processHandle.BatchStart))
 	processGroup.POST("/batch/stop", warpHandle(processHandle.BatchStop))
 }

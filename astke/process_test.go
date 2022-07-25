@@ -1,6 +1,7 @@
 package astke
 
 import (
+	"fmt"
 	"os/exec"
 	"sync"
 	"testing"
@@ -49,4 +50,19 @@ func TestProcessWait(t *testing.T) {
 	})
 
 	wg.Wait()
+}
+
+func TestTailLog(t *testing.T) {
+	tl := newTailLog()
+
+	for i := int32(1); i <= 16; i++ {
+		tl.Write([]byte(fmt.Sprintf("line %d\n", i)))
+		ctx, end := tl.Read(0)
+		fmt.Println(string(ctx), end)
+	}
+
+	for i := int32(1); i <= 16; i++ {
+		ctx, end := tl.Read(i)
+		fmt.Println(string(ctx), end)
+	}
 }

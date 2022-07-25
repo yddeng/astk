@@ -65,7 +65,14 @@
         </a-col>
       </a-row>
     </a-card>
-    <div style="marginBottom:10px;">按ID排序</div> 
+    <!-- <div style="marginBottom:10px;">
+     <a-row justify="space-between" type="flex">
+        <a-col>按ID排序</a-col>
+        <a-col style="marginRight:10px;">
+          <a-radio-group :options="['启动的时间','CPU','Mem']" />
+        </a-col>
+        </a-row>
+    </div>  -->
     <a-list
       :grid="{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl:3, xxl :4 }"
       :data-source="data.process"
@@ -121,6 +128,9 @@
               <a v-if="item.state.status === 'exited' || item.state.status === 'stopped'" @click="startProcess(item.id)">启动</a>
               <a v-else-if="item.state.status === 'running'" @click="stopProcess(item.id)">停止</a>
               <a @click="openEdit(item,'edit')">配置</a>
+              <a v-if="item.state.status === 'running' || item.state.status === 'starting' || item.state.status === 'stopping'" 
+                @click="tailLogStart(item.id,item.name)">Tailf</a>
+              
               <a-popconfirm
                 v-if="item.state.status === 'exited' || item.state.status === 'stopped'"
                 title="确定要删除吗？"
@@ -153,16 +163,26 @@
       />
       </a-col></a-row>
     </div>
+
+    <a-log
+      :visible="tailVisible"
+      :context="tail.context"
+      :title="tailTitle"
+      @cancel="tailLogCancel"
+    >
+    </a-log>
   </div>
 </template>
 <script>
 import { tags, processList, processDelete, processStart, processStop,
-processBatchStart, processBatchStop } from '@/api/process'
+processBatchStart, processBatchStop,processTail } from '@/api/process'
 import moment from 'moment'
+import Log from './modal/log'
 
 export default {
   name: 'ProcessList',
   components:{
+    'a-log': Log,
   },
   data () {
     return {
@@ -181,6 +201,15 @@ export default {
         process:[],
       },
       ticker: null,
+
+      tail:{
+        id :0,
+        start:0,
+        context:'',
+      },
+      tailTitle:'',
+      tailVisible:false,
+      tailTicker:null,
 
       pageNo:1,
       pageSize:8,
@@ -213,6 +242,7 @@ export default {
   destroyed () {
     console.log('destroyed')
     clearInterval(this.ticker)
+    clearInterval(this.tailTicker)
   },
   methods: {
     loadTags () {
@@ -267,6 +297,30 @@ export default {
         // console.log(res,this.data);
         return res
       })
+    },
+    tailLogStart(id,name){
+      this.tail = {id:id,start:0,context:''}
+      this.tailTitle=name
+      this.tailVisible = true
+      this.processTailLoop()
+      this.tailTicker = setInterval(() => {
+        this.processTailLoop()
+      }, 1000)
+    },
+    processTailLoop(){
+      processTail(this.tail).then(res => {
+        this.tail.start = res.end
+        if (res.context !==''){
+          this.tail.context += res.context
+        }
+        console.log(res,this.tail)
+      })
+    },
+    tailLogCancel(){
+      this.tailVisible = false
+      this.tail = {id:0,start:0,context:''}
+      clearInterval(this.tailTicker)
+      console.log('tailLogCancel');
     },
     onPageChange(page){
       this.pageNo = page

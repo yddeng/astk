@@ -2,7 +2,6 @@ package astke
 
 import (
 	"bytes"
-	"github.com/yddeng/astk/pkg/codec"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
@@ -86,6 +85,8 @@ func (er *Executor) onProcExec(replier *drpc.Replier, req interface{}) {
 	ecmd := exec.Command(msg.GetArgs()[0], msg.GetArgs()[1:]...)
 	ecmd.Dir = msg.GetDir()
 	ecmd.Stderr = errFile
+	tailLog := newTailLog()
+	ecmd.Stdout = tailLog
 
 	if err := ecmd.Start(); err != nil {
 		log.Println("command start error", err)
@@ -105,6 +106,7 @@ func (er *Executor) onProcExec(replier *drpc.Replier, req interface{}) {
 	p.ID = msg.GetId()
 	p.Name = msg.GetName()
 	p.Stderr = filename
+	p.tailLog = tailLog
 	waitProcess[p.ID] = p
 	saveProcess()
 	_ = replier.Reply(&protocol.ProcessExecResp{Pid: int32(p.Pid)}, nil)
@@ -161,31 +163,16 @@ func (er *Executor) onProcState(replier *drpc.Replier, req interface{}) {
 
 }
 
-func (er *Executor) onLogFile(replier *drpc.Replier, req interface{}) {
-	msg := req.(*protocol.LogFileReq)
-	//log.Printf("onLogFile %v", msg)
+func (er *Executor) onTailLog(replier *drpc.Replier, req interface{}) {
+	msg := req.(*protocol.TailLogReq)
+	// log.Printf("onTailLog %v", msg)
 
-	if file, err := os.Open(msg.GetFilename()); err == nil {
-		payload := int64(msg.GetPayload())
-		if payload > codec.BuffSize-(codec.HeadSize+100) {
-			payload = codec.BuffSize - (codec.HeadSize + 100)
-		}
-		info, _ := file.Stat()
-		size := info.Size()
-
-		off := int64(0)
-		if payload >= size {
-			off = 0
-			payload = size
-		} else {
-			off = size - payload
-		}
-
-		data := make([]byte, payload)
-		if _, err := file.ReadAt(data, off); err == nil {
-			_ = replier.Reply(&protocol.LogFileResp{Context: data}, nil)
-			return
-		}
+	if p, ok := waitProcess[msg.GetId()]; !ok {
+		_ = replier.Reply(&protocol.TailLogResp{Context: []byte("请求ID错误！")}, nil)
+	} else if p.tailLog == nil {
+		_ = replier.Reply(&protocol.TailLogResp{Context: []byte("节点程序重启，未链接应用日志！")}, nil)
+	} else {
+		context, end := p.tailLog.Read(msg.GetStart())
+		_ = replier.Reply(&protocol.TailLogResp{Context: context, End: end}, nil)
 	}
-	_ = replier.Reply(&protocol.LogFileResp{Context: nil}, nil)
 }

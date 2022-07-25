@@ -331,3 +331,46 @@ func (this *processHandler) BatchStop(wait *WaitConn, user string, req struct {
 
 	wait.Done()
 }
+
+func (*processHandler) TailLog(wait *WaitConn, user string, req struct {
+	ID    int `json:"id"`
+	Start int `json:"start"`
+}) {
+	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+
+	p, ok := processMgr.Process[req.ID]
+	if !ok || !(p.State.Status == common.StateRunning || p.State.Status == common.StateStarting || p.State.Status == common.StateStopping) {
+		wait.SetResult("当前状态无日志", nil)
+		wait.Done()
+		return
+	}
+
+	node, ok := nodes[p.Node]
+	if !ok || !node.Online() {
+		wait.SetResult("节点无服务", nil)
+		wait.Done()
+		return
+	}
+
+	rpcReq := &protocol.TailLogReq{
+		Id:    int32(req.ID),
+		Start: int32(req.Start),
+	}
+
+	if err := center.Go(node, rpcReq, drpc.DefaultRPCTimeout, func(i interface{}, e error) {
+		if e != nil {
+			wait.Done()
+			return
+		}
+		rpcResp := i.(*protocol.TailLogResp)
+		wait.SetResult("", struct {
+			Context string `json:"context"`
+			End     int32  `json:"end"`
+		}{Context: string(rpcResp.GetContext()), End: rpcResp.GetEnd()})
+
+		wait.Done()
+	}); err != nil {
+		wait.SetResult(err.Error(), nil)
+		wait.Done()
+	}
+}

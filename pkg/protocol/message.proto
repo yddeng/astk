@@ -56,12 +56,13 @@ message processState{
     double mem     = 5;
 }
 
-message logFileReq{
-    string filename = 1;
-    int32  payload  = 2;
+message tailLogReq{
+    int32 id = 1;
+    int32 start = 2;
 }
-message logFileResp{
+message tailLogResp{
     bytes  context = 1;
+    int32  end     = 2;
 }
 
 message heartbeat{}

@@ -89,7 +89,7 @@ const (
 	CmdProcStart  = 3
 	CmdProcSignal = 4
 	CmdProcState  = 5
-	CmdLogFile    = 6
+	CmdTailLog    = 6
 
 	CmdNodeState = 101
 )
@@ -113,6 +113,6 @@ func init() {
 	Register("req", &protocol.ProcessStateReq{}, CmdProcState)
 	Register("resp", &protocol.ProcessStateResp{}, CmdProcState)
 
-	Register("req", &protocol.LogFileReq{}, CmdLogFile)
-	Register("resp", &protocol.LogFileResp{}, CmdLogFile)
+	Register("req", &protocol.TailLogReq{}, CmdTailLog)
+	Register("resp", &protocol.TailLogResp{}, CmdTailLog)
 }

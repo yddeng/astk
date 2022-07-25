@@ -1,5 +1,5 @@
 {
-  "genId": 15,
+  "genId": 16,
   "process": {
     "1": {
       "id": 1,
@@ -15,8 +15,8 @@
       "createAt": 1658281370,
       "state": {
         "status": "exited",
-        "pid": 49330,
-        "timestamp": 1658458226,
+        "pid": 12280,
+        "timestamp": 1658730654,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -69,7 +69,7 @@
       "state": {
         "status": "stopped",
         "pid": 0,
-        "timestamp": 1658455879,
+        "timestamp": 1658730650,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -94,12 +94,12 @@
       "createAt": 1658300693,
       "state": {
         "status": "running",
-        "pid": 19702,
-        "timestamp": 1658483886,
+        "pid": 27684,
+        "timestamp": 1658732062,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0.07829666137695312
+        "cpu": 0.011955778700369608,
+        "mem": 0.08130073547363281
       },
       "priority": 10,
       "startSecs": 0,
@@ -131,6 +131,37 @@
       "startSecs": 0,
       "stopWaitSecs": 0,
       "autoStartTimes": 0
+    },
+    "16": {
+      "id": 16,
+      "name": "game_1.4.1_dev_123",
+      "dir": "/Users/yidongdeng/workspace/initialthree",
+      "config": [
+        {
+          "name": "config.toml",
+          "context": "[Common]\ncenterAddr     \t= [\"localhost:8010\"]\ndbType             = \"cluster\"\ndbConfig      \t= [\"flyfish@dir@10.128.2.123:10012\",\"flyfish@login@10.128.2.123:10012\",\"flyfish@game@10.128.2.123:10012\",\"flyfish@global@10.128.2.123:10012\", \"flyfish@gm@10.128.2.123:10012\", \"flyfish@conflictzone@10.128.2.123:10012\",\"flyfish@nodelock@10.128.2.123:10012\"]\nserverGroups    = [1]  # 服务的群组\ncfgPathRoot     = \"/Users/yidongdeng/svn/TheInitial3_Dev/TheInitial3_Dev_Config\"\nexcelPath       = \"Excel\"\nquestCfgPath    = \"Quest\"\nwordsFilterPath     = \"WordsFilter/wordsFilter.txt\"\nlogicTimeSysCfgPath = \"ScriptableObjects/TimeConfig.asset\"\nweatherSysCfgPath   = \"ScriptableObjects/WeatherConfig.asset\"\n\n[Log]\npath            = \"log\"\nlevel           = \"debug\"\nmaxSize         = 100\nmaxAge          = 14\nmaxBackups      = 5\nenableLogStdout = true\n\n[[Game]]\nlogicAddr\t\t= \"1.4.1\"\nclusterAddr    \t= \"localhost:8401\""
+        }
+      ],
+      "command": "./bin/node_game {{path}}/config.toml Game 0 initialthree pprof@0.0.0.0:41234",
+      "labels": [
+        "node_game"
+      ],
+      "node": "astke",
+      "user": "admin",
+      "createAt": 1658732162,
+      "state": {
+        "status": "running",
+        "pid": 29033,
+        "timestamp": 1658732190,
+        "exitMsg": "",
+        "autoStartTimes": 0,
+        "cpu": 104.17077089652417,
+        "mem": 0.4155874252319336
+      },
+      "priority": 10,
+      "startSecs": 3,
+      "stopWaitSecs": 10,
+      "autoStartTimes": 3
     },
     "3": {
       "id": 3,

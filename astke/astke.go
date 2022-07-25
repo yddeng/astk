@@ -198,7 +198,7 @@ func Start(cfg Config) (err error) {
 	er.rpcServer.Register(proto.MessageName(&protocol.ProcessExecReq{}), er.onProcExec)
 	er.rpcServer.Register(proto.MessageName(&protocol.ProcessSignalReq{}), er.onProcSignal)
 	er.rpcServer.Register(proto.MessageName(&protocol.ProcessStateReq{}), er.onProcState)
-	er.rpcServer.Register(proto.MessageName(&protocol.LogFileReq{}), er.onLogFile)
+	er.rpcServer.Register(proto.MessageName(&protocol.TailLogReq{}), er.onTailLog)
 
 	loadProcess(cfg.DataPath)
 
