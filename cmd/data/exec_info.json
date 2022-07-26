@@ -8,12 +8,12 @@
     "createTime": 1658730654171
   },
   "14": {
-    "pid": 27684,
+    "pid": 94673,
     "stderr": "/Users/yidongdeng/workspace/initialthree/.astk/center/stderr.log",
     "id": 14,
     "name": "center",
     "state": "running",
-    "createTime": 1658732062390
+    "createTime": 1658738337270
   },
   "15": {
     "pid": 24297,
@@ -24,11 +24,11 @@
     "createTime": 1658455879510
   },
   "16": {
-    "pid": 29033,
+    "pid": 46344,
     "stderr": "/Users/yidongdeng/workspace/initialthree/.astk/game_1.4.1_dev_123/stderr.log",
     "id": 16,
     "name": "game_1.4.1_dev_123",
-    "state": "running",
-    "createTime": 1658732190059
+    "state": "exited",
+    "createTime": 1658733782519
   }
 }

@@ -336,7 +336,7 @@ func (*processHandler) TailLog(wait *WaitConn, user string, req struct {
 	ID    int `json:"id"`
 	Start int `json:"start"`
 }) {
-	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
 
 	p, ok := processMgr.Process[req.ID]
 	if !ok || !(p.State.Status == common.StateRunning || p.State.Status == common.StateStarting || p.State.Status == common.StateStopping) {
@@ -373,4 +373,41 @@ func (*processHandler) TailLog(wait *WaitConn, user string, req struct {
 		wait.SetResult(err.Error(), nil)
 		wait.Done()
 	}
+}
+
+func (*processHandler) Bell(wait *WaitConn, user string, req struct {
+	ID   int  `json:"id"`
+	Bell bool `json:"bell"`
+}) {
+	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	defer func() { wait.Done() }()
+
+	p, ok := processMgr.Process[req.ID]
+	if !ok {
+		wait.SetResult("不存在的进程", nil)
+		return
+	}
+
+	if p.Bell != req.Bell {
+		p.Bell = req.Bell
+		saveStore(snProcessMgr)
+	}
+	wait.SetResult("", nil)
+}
+
+func (*processHandler) Monitor(wait *WaitConn, user string) {
+	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	defer func() { wait.Done() }()
+	wait.SetResult("", processMgr.Monitor)
+}
+
+func (*processHandler) MonitorSet(wait *WaitConn, user string, req Monitor) {
+	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	defer func() {
+		wait.SetResult("", nil)
+		wait.Done()
+	}()
+
+	processMgr.Monitor = &req
+	saveStore(snProcessMgr)
 }

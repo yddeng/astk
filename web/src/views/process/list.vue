@@ -80,7 +80,8 @@
       <a-list-item slot="renderItem" slot-scope="item">
           <a-card :title="item.name" size="small" :bordered="false">
             <template slot="extra" >
-              <a-icon type="bell" style="color:#2894FF" @click="processBell" />
+              <a-icon v-if="item.bell" type="bell" theme="twoTone" @click="processBell(item.id,false)" />
+              <a-icon v-else type="bell" @click="processBell(item.id,true)" />
             </template>
 
             <a-row style="height:24px;line-height:24px">
@@ -89,15 +90,15 @@
             </a-row>
             <a-row style="height:24px;line-height:24px">
               <a-col :span="3">重启</a-col>
-              <a-col :span="20">{{ item.autoStartTimes }}次</a-col>
+              <a-col :span="20">{{ item.state.autoStartTimes }}次</a-col>
             </a-row>
             <a-row style="height:24px;line-height:24px">
               <a-col :span="3">状态</a-col>
               <a-col :span="20">
-                <a-popconfirm v-if="item.state.status==='exited'" placement="topRight" trigger="click">
-                  <span slot="title" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
+                <a-popover v-if="item.state.status==='exited'" placement="topRight" trigger="click">
+                  <span slot="content" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
                   <a-tag :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
-                </a-popconfirm>
+                </a-popover>
                 <a-tag v-else :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
                 <span v-if="item.state.status==='running'">
                   Pid:{{ item.state.pid }}, Age: {{ item.state.timestamp | showAge }}
@@ -129,7 +130,7 @@
               <a v-else-if="item.state.status === 'running'" @click="stopProcess(item.id)">停止</a>
               <a @click="openEdit(item,'edit')">配置</a>
               <a v-if="item.state.status === 'running' || item.state.status === 'starting' || item.state.status === 'stopping'" 
-                @click="tailLogStart(item.id,item.name)">Tailf</a>
+                @click="tailLogStart(item.id,item.name)">日志</a>
               
               <a-popconfirm
                 v-if="item.state.status === 'exited' || item.state.status === 'stopped'"
@@ -175,7 +176,7 @@
 </template>
 <script>
 import { tags, processList, processDelete, processStart, processStop,
-processBatchStart, processBatchStop,processTail } from '@/api/process'
+processBatchStart, processBatchStop,processTail,processBell } from '@/api/process'
 import moment from 'moment'
 import Log from './modal/log'
 
@@ -369,8 +370,11 @@ export default {
         return '#EAC100'
       }
     },
-    processBell () {
-      this.$message.info('暂未实现该功能')
+    processBell (id ,b) {
+      processBell({id:id,bell:b}).then(()=>{
+        this.loadProcess()
+        this.$message.info('操作成功')
+      })
     }
   }
 }

@@ -92,8 +92,14 @@ func (store *processMgrStore) Load(dataPath string) (err error) {
 		if os.IsNotExist(err) {
 			err = nil
 			processMgr = &ProcessMgr{
-				GenID:     0,
-				Process:   map[int]*Process{},
+				GenID:   0,
+				Process: map[int]*Process{},
+				Monitor: &Monitor{
+					Cpu:           90,
+					Mem:           90,
+					Interval:      10,
+					AlertInterval: 3600,
+				},
 				TagLabels: map[string]struct{}{},
 				TagNodes:  map[string]struct{}{},
 			}
@@ -142,7 +148,7 @@ const (
 )
 
 var (
-	nodes      = map[string]*node{}
+	nodes      = map[string]*Node{}
 	cmdMgr     *CmdMgr
 	processMgr *ProcessMgr
 )

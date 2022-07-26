@@ -79,3 +79,26 @@ export function processTail (parameter) {
     data: parameter
   })
 }
+
+export function processMonitor (parameter) {
+  return request({
+    url: "process/monitor",
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function processMonitorSet (parameter) {
+  return request({
+    url: "process/monitor/set",
+    method: 'post',
+    data: parameter
+  })
+}
+export function processBell (parameter) {
+  return request({
+    url: "process/bell",
+    method: 'post',
+    data: parameter
+  })
+}

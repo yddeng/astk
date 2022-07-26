@@ -44,6 +44,10 @@ type Process struct {
 
 	State ProcessState `json:"state"`
 
+	// 检测器
+	Bell         bool          `json:"bell"`
+	MonitorState *MonitorState `json:"_"`
+
 	// 子进程启动关闭优先级，优先级低的，最先启动，关闭的时候最后关闭
 	// 默认值为999 。。非必须设置
 	Priority int `json:"priority"`
@@ -62,6 +66,7 @@ type Process struct {
 type ProcessMgr struct {
 	GenID     int                 `json:"genId"`
 	Process   map[int]*Process    `json:"process"`
+	Monitor   *Monitor            `json:"monitor"`
 	TagLabels map[string]struct{} `json:"_"`
 	TagNodes  map[string]struct{} `json:"_"`
 }
@@ -83,6 +88,16 @@ func (mgr *ProcessMgr) refreshLabels() {
 
 	mgr.TagLabels = labels
 	mgr.TagNodes = nodes
+
+	if mgr.Monitor == nil {
+		mgr.Monitor = &Monitor{
+			Cpu:           1,
+			Mem:           1,
+			Disk:          0,
+			Interval:      10,
+			AlertInterval: 60,
+		}
+	}
 }
 
 func processTick() {
@@ -168,6 +183,8 @@ func processTick() {
 				case common.StateRunning:
 					switch state.GetState() {
 					case common.StateRunning:
+						// 仅运行状态监控报警
+						p.monitor(state.GetCpu(), state.GetMem())
 					case common.StateStopped:
 						p.State.Status = common.StateStopped
 						change = true
@@ -226,7 +243,7 @@ func processAutoStart() {
 	}
 }
 
-func (p *Process) start(node *node, callback func(code string, err error)) error {
+func (p *Process) start(node *Node, callback func(code string, err error)) error {
 	configs := make(map[string]string, len(p.Config))
 	for _, cfg := range p.Config {
 		configs[cfg.Name] = cfg.Context
@@ -249,4 +266,23 @@ func (p *Process) start(node *node, callback func(code string, err error)) error
 		rpcResp := i.(*protocol.ProcessExecResp)
 		callback(rpcResp.GetCode(), nil)
 	})
+}
+
+func (p *Process) monitor(cpu, mem float64) {
+	if p.Bell {
+		if p.MonitorState == nil {
+			p.MonitorState = new(MonitorState)
+		}
+
+		if processMgr.Monitor.Trigger(cpu, mem, 0) {
+			processMgr.Monitor.Alert(p.MonitorState, true)
+		} else {
+			processMgr.Monitor.Alert(p.MonitorState, false)
+		}
+
+	} else {
+		if p.MonitorState != nil {
+			p.MonitorState = nil
+		}
+	}
 }

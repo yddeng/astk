@@ -66,3 +66,21 @@ func TestTailLog(t *testing.T) {
 		fmt.Println(string(ctx), end)
 	}
 }
+
+func TestTest(t *testing.T) {
+	type Test struct {
+		name string
+		age  int
+	}
+
+	yddeng := Test{
+		name: "yddeng",
+		age:  25,
+	}
+	fmt.Println(yddeng)
+
+	yddeng = Test{
+		age: 26,
+	}
+	fmt.Println(yddeng)
+}

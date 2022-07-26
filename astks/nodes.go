@@ -31,7 +31,7 @@ func newCenter(address, token string) *Center {
 	return c
 }
 
-func (c *Center) Go(n *node, data proto.Message, timeout time.Duration, callback func(interface{}, error)) error {
+func (c *Center) Go(n *Node, data proto.Message, timeout time.Duration, callback func(interface{}, error)) error {
 	return c.rpcClient.Go(n, proto.MessageName(data), data, timeout, callback)
 }
 
@@ -49,7 +49,7 @@ func (c *Center) startListener() error {
 					var err error
 					switch data.(type) {
 					case *drpc.Request:
-						err = c.rpcServer.OnRPCRequest(&node{session: session}, data.(*drpc.Request))
+						err = c.rpcServer.OnRPCRequest(&Node{session: session}, data.(*drpc.Request))
 					case *drpc.Response:
 						err = c.rpcClient.OnRPCResponse(data.(*drpc.Response))
 					case *codec.Message:
@@ -65,7 +65,7 @@ func (c *Center) startListener() error {
 					log.Printf("session closed, reason: %s\n", reason)
 					ctx := session.Context()
 					if ctx != nil {
-						client := ctx.(*node)
+						client := ctx.(*Node)
 						client.session = nil
 						session.SetContext(nil)
 					}
@@ -83,8 +83,8 @@ func (c *Center) dispatchMsg(session dnet.Session, msg *codec.Message) {
 	case codec.CmdNodeState:
 		ctx := session.Context()
 		if ctx != nil {
-			node := ctx.(*node)
-			node.onNodeState(msg.GetData().(*protocol.NodeState))
+			Node := ctx.(*Node)
+			Node.onNodeState(msg.GetData().(*protocol.NodeState))
 		}
 	default:
 
@@ -92,7 +92,7 @@ func (c *Center) dispatchMsg(session dnet.Session, msg *codec.Message) {
 
 }
 
-type node struct {
+type Node struct {
 	Name    string       `json:"name"`
 	Inet    string       `json:"inet"`
 	Net     string       `json:"net"`
@@ -102,18 +102,18 @@ type node struct {
 	nodeState *protocol.NodeState `json:"_"`
 }
 
-func (n *node) Online() bool {
+func (n *Node) Online() bool {
 	return n.session != nil
 }
 
-func (n *node) SendRequest(req *drpc.Request) error {
+func (n *Node) SendRequest(req *drpc.Request) error {
 	if n.session == nil {
 		return errors.New("session is nil")
 	}
 	return n.session.Send(req)
 }
 
-func (n *node) SendResponse(resp *drpc.Response) error {
+func (n *Node) SendResponse(resp *drpc.Response) error {
 	if n.session == nil {
 		return errors.New("session is nil")
 	}
@@ -127,19 +127,19 @@ func (c *Center) onLogin(replier *drpc.Replier, req interface{}) {
 
 	if c.token != "" && msg.GetToken() != c.token {
 		replier.Reply(&protocol.LoginResp{Code: "token failed"}, nil)
-		channel.(*node).session.Close(errors.New("token failed. "))
+		channel.(*Node).session.Close(errors.New("token failed. "))
 		return
 	}
 
 	name := msg.GetName()
 	client := nodes[name]
 	if client == nil {
-		client = &node{Name: name}
+		client = &Node{Name: name}
 		nodes[name] = client
 	}
 	if client.session != nil {
 		replier.Reply(&protocol.LoginResp{Code: "client already login. "}, nil)
-		channel.(*node).session.Close(errors.New("client already login. "))
+		channel.(*Node).session.Close(errors.New("client already login. "))
 		return
 	}
 
@@ -147,13 +147,13 @@ func (c *Center) onLogin(replier *drpc.Replier, req interface{}) {
 	client.Net = msg.GetNet()
 	client.LoginAt = NowUnix()
 
-	client.session = channel.(*node).session
+	client.session = channel.(*Node).session
 	client.session.SetContext(client)
 	log.Printf("onLogin %s", client.session.RemoteAddr().String())
 	replier.Reply(&protocol.LoginResp{}, nil)
 	saveStore(snNode)
 }
 
-func (n *node) onNodeState(msg *protocol.NodeState) {
+func (n *Node) onNodeState(msg *protocol.NodeState) {
 	n.nodeState = msg
 }
