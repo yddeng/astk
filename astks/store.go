@@ -63,23 +63,32 @@ func doSave(final bool) {
 	needSave = map[storeName]bool{}
 }
 
-type nodeStore struct {
+type nodeMgrStore struct {
 	storeBase
 }
 
-func (store *nodeStore) Load(dataPath string) (err error) {
+func (store *nodeMgrStore) Load(dataPath string) (err error) {
 	store.filename = path.Join(dataPath, store.file)
-	if err = util.DecodeJsonFromFile(&nodes, store.filename); err != nil {
+	if err = util.DecodeJsonFromFile(&nodeMgr, store.filename); err != nil {
 		if os.IsNotExist(err) {
 			err = nil
+			nodeMgr = &NodeMgr{
+				Nodes: map[string]*Node{},
+				Monitor: &Monitor{
+					Cpu:           90,
+					Mem:           90,
+					Interval:      10,
+					AlertInterval: 3600,
+				},
+			}
 		}
 		return
 	}
 	return
 }
 
-func (store *nodeStore) Save() error {
-	return util.EncodeJsonToFile(nodes, store.filename)
+func (store *nodeMgrStore) Save() error {
+	return util.EncodeJsonToFile(nodeMgr, store.filename)
 }
 
 type processMgrStore struct {
@@ -138,29 +147,55 @@ func (store *cmdMgrStore) Save() error {
 	return util.EncodeJsonToFile(cmdMgr, store.filename)
 }
 
+type notifyMgrStore struct {
+	storeBase
+}
+
+func (store *notifyMgrStore) Load(dataPath string) (err error) {
+	store.filename = path.Join(dataPath, store.file)
+	if err = util.DecodeJsonFromFile(&notifyMgr, store.filename); err != nil {
+		if os.IsNotExist(err) {
+			err = nil
+			notifyMgr = &NotifyMgr{
+				Notify: map[string]*Notify{},
+			}
+		}
+		return
+	}
+	return
+}
+
+func (store *notifyMgrStore) Save() error {
+	return util.EncodeJsonToFile(notifyMgr, store.filename)
+}
+
 type storeName string
 
 const (
-	snNode       storeName = "node"
-	snUserMgr    storeName = "user_mgr"
+	snNodeMgr    storeName = "node_mgr"
 	snCmdMgr     storeName = "cmd_mgr"
 	snProcessMgr storeName = "process_mgr"
+	snNotifyMgr  storeName = "notify_mgr"
 )
 
 var (
-	nodes      = map[string]*Node{}
+	nodeMgr    *NodeMgr
 	cmdMgr     *CmdMgr
 	processMgr *ProcessMgr
+	notifyMgr  *NotifyMgr
 )
 
 func init() {
-	stores[snNode] = &nodeStore{storeBase{
-		file: "node.json",
+	stores[snNodeMgr] = &nodeMgrStore{storeBase{
+		file: "node_mgr.json",
 	}}
 	stores[snCmdMgr] = &cmdMgrStore{storeBase{
 		file: "cmd_mgr.json",
 	}}
 	stores[snProcessMgr] = &processMgrStore{storeBase{
 		file: "process_mgr.json",
+	}}
+	stores[snNotifyMgr] = &notifyMgrStore{storeBase{
+		file: "notify_mgr.json",
 	}}
 }

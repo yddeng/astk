@@ -158,7 +158,7 @@ func (*cmdHandler) Exec(wait *WaitConn, user string, req struct {
 		return
 	}
 
-	node, ok := nodes[req.Node]
+	node, ok := nodeMgr.Nodes[req.Node]
 	if !ok || !node.Online() {
 		wait.SetResult("执行客户端不存在或不在线", nil)
 		wait.Done()

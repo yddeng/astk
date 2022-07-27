@@ -199,7 +199,7 @@ func (*processHandler) Start(wait *WaitConn, user string, req struct {
 		return
 	}
 
-	node, ok := nodes[p.Node]
+	node, ok := nodeMgr.Nodes[p.Node]
 	if !ok || !node.Online() {
 		wait.SetResult("节点无服务", nil)
 		wait.Done()
@@ -235,7 +235,7 @@ func (*processHandler) Stop(wait *WaitConn, user string, req struct {
 		return
 	}
 
-	node, ok := nodes[p.Node]
+	node, ok := nodeMgr.Nodes[p.Node]
 	if !ok || !node.Online() {
 		wait.SetResult("节点无服务", nil)
 		wait.Done()
@@ -281,7 +281,7 @@ func (this *processHandler) BatchStart(wait *WaitConn, user string, req struct {
 		return s[i].Priority < s[j].Priority
 	})
 	for _, p := range s {
-		node, ok := nodes[p.Node]
+		node, ok := nodeMgr.Nodes[p.Node]
 		if !ok || !node.Online() {
 			continue
 		}
@@ -312,7 +312,7 @@ func (this *processHandler) BatchStop(wait *WaitConn, user string, req struct {
 		return s[i].Priority > s[j].Priority
 	})
 	for _, p := range s {
-		node, ok := nodes[p.Node]
+		node, ok := nodeMgr.Nodes[p.Node]
 		if !ok || !node.Online() {
 			continue
 		}
@@ -345,7 +345,7 @@ func (*processHandler) TailLog(wait *WaitConn, user string, req struct {
 		return
 	}
 
-	node, ok := nodes[p.Node]
+	node, ok := nodeMgr.Nodes[p.Node]
 	if !ok || !node.Online() {
 		wait.SetResult("节点无服务", nil)
 		wait.Done()

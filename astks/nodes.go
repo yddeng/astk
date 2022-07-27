@@ -2,6 +2,7 @@ package astks
 
 import (
 	"errors"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/yddeng/astk/pkg/codec"
 	"github.com/yddeng/astk/pkg/common"
@@ -10,6 +11,7 @@ import (
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -92,14 +94,24 @@ func (c *Center) dispatchMsg(session dnet.Session, msg *codec.Message) {
 
 }
 
-type Node struct {
-	Name    string       `json:"name"`
-	Inet    string       `json:"inet"`
-	Net     string       `json:"net"`
-	LoginAt int64        `json:"loginAt"` // 登陆时间
-	session dnet.Session `json:"_"`
+type NodeMgr struct {
+	Nodes   map[string]*Node `json:"nodes"`
+	Monitor *Monitor         `json:"monitor"`
+}
 
-	nodeState *protocol.NodeState `json:"_"`
+type Node struct {
+	Name    string `json:"name"`
+	Inet    string `json:"inet"`
+	Net     string `json:"net"`
+	LoginAt int64  `json:"loginAt"` // 登陆时间
+
+	session dnet.Session
+
+	nodeState *protocol.NodeState
+
+	// 检测器
+	Bell         bool          `json:"bell"`
+	MonitorState *MonitorState `json:"-"`
 }
 
 func (n *Node) Online() bool {
@@ -132,10 +144,10 @@ func (c *Center) onLogin(replier *drpc.Replier, req interface{}) {
 	}
 
 	name := msg.GetName()
-	client := nodes[name]
+	client := nodeMgr.Nodes[name]
 	if client == nil {
 		client = &Node{Name: name}
-		nodes[name] = client
+		nodeMgr.Nodes[name] = client
 	}
 	if client.session != nil {
 		replier.Reply(&protocol.LoginResp{Code: "client already login. "}, nil)
@@ -151,9 +163,31 @@ func (c *Center) onLogin(replier *drpc.Replier, req interface{}) {
 	client.session.SetContext(client)
 	log.Printf("onLogin %s", client.session.RemoteAddr().String())
 	replier.Reply(&protocol.LoginResp{}, nil)
-	saveStore(snNode)
+	saveStore(snNodeMgr)
 }
 
 func (n *Node) onNodeState(msg *protocol.NodeState) {
 	n.nodeState = msg
+
+	cpuUsed, _ := strconv.ParseFloat(msg.GetCpu()["usedPercent"], 64)
+	memUsed, _ := strconv.ParseFloat(msg.GetMem()["virtualUsedPercent"], 64)
+	diskUsed, _ := strconv.ParseFloat(msg.GetDisk()["usedPercent"], 64)
+	n.monitor(cpuUsed, memUsed, diskUsed)
+}
+
+func (n *Node) monitor(cpu, mem, disk float64) {
+	if n.Bell {
+		if n.MonitorState == nil {
+			n.MonitorState = new(MonitorState)
+		}
+
+		nodeMgr.Monitor.Alert(n.MonitorState, cpu, mem, disk, func() string {
+			return fmt.Sprintf("节点名:%s", n.Name)
+		})
+
+	} else {
+		if n.MonitorState != nil {
+			n.MonitorState = nil
+		}
+	}
 }

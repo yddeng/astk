@@ -23,7 +23,6 @@
         "mem": 0
       },
       "bell": true,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -52,7 +51,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -80,7 +78,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -104,11 +101,10 @@
         "timestamp": 1658738337,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0.022786182290009824,
-        "mem": 0.05061626434326172
+        "cpu": 0.028147703723931494,
+        "mem": 0.04825592041015625
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 10,
       "stopWaitSecs": 0,
@@ -136,7 +132,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -169,7 +164,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 3,
       "stopWaitSecs": 10,
@@ -197,7 +191,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -226,7 +219,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -255,7 +247,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -284,7 +275,6 @@
         "mem": 0
       },
       "bell": false,
-      "_": null,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -292,7 +282,7 @@
     }
   },
   "monitor": {
-    "cpu": 65,
+    "cpu": 0,
     "mem": 62,
     "disk": 0,
     "interval": 16,

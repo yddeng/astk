@@ -46,7 +46,7 @@ type Process struct {
 
 	// 检测器
 	Bell         bool          `json:"bell"`
-	MonitorState *MonitorState `json:"_"`
+	MonitorState *MonitorState `json:"-"`
 
 	// 子进程启动关闭优先级，优先级低的，最先启动，关闭的时候最后关闭
 	// 默认值为999 。。非必须设置
@@ -67,8 +67,8 @@ type ProcessMgr struct {
 	GenID     int                 `json:"genId"`
 	Process   map[int]*Process    `json:"process"`
 	Monitor   *Monitor            `json:"monitor"`
-	TagLabels map[string]struct{} `json:"_"`
-	TagNodes  map[string]struct{} `json:"_"`
+	TagLabels map[string]struct{} `json:"-"`
+	TagNodes  map[string]struct{} `json:"-"`
 }
 
 func (mgr *ProcessMgr) refreshLabels() {
@@ -117,7 +117,7 @@ func processTick() {
 	}
 
 	for n, req := range rpcReq {
-		node, ok := nodes[n]
+		node, ok := nodeMgr.Nodes[n]
 		if !ok || !node.Online() {
 			// 节点不在线 设置状态为 unknown
 			change := false
@@ -226,7 +226,7 @@ func processAutoStart() {
 		if p.State.Status == common.StateExited &&
 			p.State.AutoStartTimes < p.AutoStartTimes {
 
-			node, ok := nodes[p.Node]
+			node, ok := nodeMgr.Nodes[p.Node]
 			if !ok || !node.Online() {
 				continue
 			}
@@ -274,11 +274,9 @@ func (p *Process) monitor(cpu, mem float64) {
 			p.MonitorState = new(MonitorState)
 		}
 
-		if processMgr.Monitor.Trigger(cpu, mem, 0) {
-			processMgr.Monitor.Alert(p.MonitorState, true)
-		} else {
-			processMgr.Monitor.Alert(p.MonitorState, false)
-		}
+		processMgr.Monitor.Alert(p.MonitorState, cpu, mem, 0, func() string {
+			return fmt.Sprintf("应用名:%s|所属节点:%s", p.Name, p.Node)
+		})
 
 	} else {
 		if p.MonitorState != nil {

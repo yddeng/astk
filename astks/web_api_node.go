@@ -23,8 +23,8 @@ func (*nodeHandler) List(wait *WaitConn, user string, req struct {
 }) {
 	//log.Printf("%s by(%s) %v\n", done.route, user, req)
 
-	s := make([]*nodeInfo, 0, len(nodes))
-	for _, n := range nodes {
+	s := make([]*nodeInfo, 0, len(nodeMgr.Nodes))
+	for _, n := range nodeMgr.Nodes {
 		s = append(s, &nodeInfo{
 			Name:    n.Name,
 			Inet:    n.Inet,
@@ -42,7 +42,7 @@ func (*nodeHandler) List(wait *WaitConn, user string, req struct {
 		}
 	})
 
-	start, end := listRange(req.PageNo, req.PageSize, len(nodes))
+	start, end := listRange(req.PageNo, req.PageSize, len(nodeMgr.Nodes))
 	wait.SetResult("", pageData{
 		PageNo:     req.PageNo,
 		PageSize:   req.PageSize,
@@ -55,8 +55,8 @@ func (*nodeHandler) List(wait *WaitConn, user string, req struct {
 func (*nodeHandler) Names(wait *WaitConn, user string) {
 	log.Printf("%s by(%s)\n", wait.route, user)
 
-	s := make([]string, 0, len(nodes))
-	for _, n := range nodes {
+	s := make([]string, 0, len(nodeMgr.Nodes))
+	for _, n := range nodeMgr.Nodes {
 		s = append(s, n.Name)
 	}
 	wait.SetResult("", s)
@@ -68,12 +68,12 @@ func (*nodeHandler) Remove(wait *WaitConn, user string, req struct {
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
-	n, ok := nodes[req.Name]
+	n, ok := nodeMgr.Nodes[req.Name]
 	if !ok || n.Online() {
 		wait.SetResult("当前状态不允许移除", nil)
 		return
 	}
 
-	delete(nodes, req.Name)
-	saveStore(snNode)
+	delete(nodeMgr.Nodes, req.Name)
+	saveStore(snNodeMgr)
 }

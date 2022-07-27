@@ -1,6 +1,20 @@
 package astks
 
-import "log"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
+
+const (
+	alertCPU  = "cpu使用率超过 %.1f%%, 当前使用率 %.1f%%"
+	alertMem  = "内存繁忙超过 %.1f%%, 当前使用率 %.1f%%"
+	alertDisk = "硬盘使用率超过 %.1f%%, 当前使用率 %.1f%%"
+
+	alertMessage = `告警内容：%s
+告警对象：%s
+触发时间：%s`
+)
 
 type Monitor struct {
 	Cpu  int `json:"cpu"`  // cpu使用率, 默认90, 小于0表示不启用检测
@@ -21,33 +35,47 @@ type MonitorState struct {
 	AlertTime   int64 // 报警时间
 }
 
-func (this *Monitor) Trigger(cpu, mem, disk float64) bool {
+func (this *Monitor) trigger(cpu, mem, disk float64) (broken bool, info []string) {
 	if this.Cpu > 0 && int(cpu) > this.Cpu {
-		return true
+		broken = true
+		info = append(info, fmt.Sprintf(alertCPU, float64(this.Cpu), cpu))
 	}
 	if this.Mem > 0 && int(mem) > this.Mem {
-		return true
+		broken = true
+		info = append(info, fmt.Sprintf(alertMem, float64(this.Mem), mem))
 	}
 	if this.Disk > 0 && int(disk) > this.Disk {
-		return true
+		broken = true
+		info = append(info, fmt.Sprintf(alertDisk, float64(this.Disk), disk))
 	}
-	return false
+	return
 }
 
-func (this *Monitor) Alert(state *MonitorState, trigger bool) {
-	if !trigger {
+func (this *Monitor) notify(msg string) {
+	for _, name := range this.Notifys {
+		if n, ok := notifyMgr.Notify[name]; ok {
+			n.Push(msg)
+		}
+	}
+}
+
+func (this *Monitor) Alert(state *MonitorState, cpu, mem, disk float64, name func() string) {
+	broken, info := this.trigger(cpu, mem, disk)
+	if !broken {
 		state.TriggerTime = 0
 		state.AlertTime = 0
 	} else {
-		now := NowUnix()
+		now := time.Now()
+		nowUnix := now.Unix()
 		if state.TriggerTime == 0 {
-			state.TriggerTime = now
-		} else if now-state.TriggerTime > this.Interval {
+			state.TriggerTime = nowUnix
+		} else if nowUnix-state.TriggerTime > this.Interval {
 			// 持续时间内，已达到报警条件
-			if now-state.AlertTime > this.AlertInterval {
+			if nowUnix-state.AlertTime > this.AlertInterval {
 				//
-				log.Println("alert ")
-				state.AlertTime = now
+				state.AlertTime = nowUnix
+				msg := fmt.Sprintf(alertMessage, strings.Join(info, ";"), name(), now.String())
+				this.notify(msg)
 			}
 		}
 	}

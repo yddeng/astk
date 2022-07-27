@@ -5,29 +5,46 @@ import "log"
 type MsgNotifyType string
 
 const (
+	// https://open.work.weixin.qq.com/help2/pc/14931?person_id=1&is_tencent=
 	MsgNotifyTypeWeixin MsgNotifyType = "weixin"
+	// 自定义类型
+	MsgNotifyTypeCallback MsgNotifyType = "callback"
 )
 
-type MsgNotify interface {
-	Name() string
-	Type() MsgNotifyType
-	Push(msg string) error
+type NotifyMgr struct {
+	Notify map[string]*Notify `json:"notify"`
 }
 
-// https://open.work.weixin.qq.com/help2/pc/14931?person_id=1&is_tencent=
-type WeixinNotify struct {
-	url string
+type Notify struct {
+	NotifyName   string        `json:"name"`
+	NotifyType   MsgNotifyType `json:"type"`
+	NotifyServer string        `json:"server"`
 }
 
-func (this *WeixinNotify) Name() string {
-	return "test"
+func (this *Notify) Name() string {
+	return this.NotifyName
 }
 
-func (this *WeixinNotify) Type() MsgNotifyType {
-	return MsgNotifyTypeWeixin
+func (this *Notify) Type() MsgNotifyType {
+	return this.NotifyType
 }
 
-func (this *WeixinNotify) Push(msg string) error {
-	log.Println("weixinRobot push", msg)
+func (this *Notify) Push(msg string) error {
+	switch this.NotifyType {
+	case MsgNotifyTypeWeixin:
+		this.pushWeixinMessage(msg)
+	case MsgNotifyTypeCallback:
+		this.pushCallbackMessage(msg)
+	}
+
 	return nil
+}
+
+func (this *Notify) pushWeixinMessage(msg string) {
+	log.Println("weixin push", msg)
+}
+
+func (this *Notify) pushCallbackMessage(msg string) {
+	log.Println("callback push", msg)
+
 }

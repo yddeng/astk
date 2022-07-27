@@ -61,7 +61,6 @@ export default {
       })
     },
     updateMonitor(){
-      console.log('ser');
       processMonitorSet(this.form).then(()=>{
         this.loadMonitor()
       })
