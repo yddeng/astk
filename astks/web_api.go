@@ -218,6 +218,7 @@ func initHandler(app *gin.Engine) {
 	nodeGroup.POST("/list", warpHandle(nodeHandle.List))
 	nodeGroup.POST("/names", warpHandle(nodeHandle.Names))
 	nodeGroup.POST("/remove", warpHandle(nodeHandle.Remove))
+	nodeGroup.POST("/bell", warpHandle(nodeHandle.Bell))
 
 	cmdHandle := new(cmdHandler)
 	cmdGroup := app.Group("/cmd")
@@ -241,6 +242,10 @@ func initHandler(app *gin.Engine) {
 	processGroup.POST("/batch/stop", warpHandle(processHandle.BatchStop))
 	processGroup.POST("/tail", warpHandle(processHandle.TailLog))
 	processGroup.POST("/bell", warpHandle(processHandle.Bell))
-	processGroup.POST("/monitor", warpHandle(processHandle.Monitor))
-	processGroup.POST("/monitor/set", warpHandle(processHandle.MonitorSet))
+
+	monitorHandle := new(monitorHandler)
+	monitorGroup := app.Group("/monitor")
+	monitorGroup.POST("/info", warpHandle(monitorHandle.Info))
+	monitorGroup.POST("/rule", warpHandle(monitorHandle.SetRule))
+	monitorGroup.POST("/notify", warpHandle(monitorHandle.SetNotify))
 }

@@ -11,18 +11,9 @@ const (
 	MsgNotifyTypeCallback MsgNotifyType = "callback"
 )
 
-type NotifyMgr struct {
-	Notify map[string]*Notify `json:"notify"`
-}
-
 type Notify struct {
-	NotifyName   string        `json:"name"`
-	NotifyType   MsgNotifyType `json:"type"`
-	NotifyServer string        `json:"server"`
-}
-
-func (this *Notify) Name() string {
-	return this.NotifyName
+	NotifyType   MsgNotifyType `json:"notifyType"`
+	NotifyServer string        `json:"notifyServer"`
 }
 
 func (this *Notify) Type() MsgNotifyType {

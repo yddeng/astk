@@ -67,25 +67,10 @@ export const asyncRouterMap = [
         path: '/command/log'
       },
       {
-        name:"process",
-        path: '/process',
-        redirect: '/process/list',
+        name:"plist",
+        path: '/process/list',
         meta:{title:'应用服务',icon:'project'},
-        component: () => import('@/layouts/BlankLayout'),
-        children:[
-          {
-            name:"plist",
-            path: '/process/list',
-            meta:{title:'应用中心'},
-            component: () => import('@/views/process/list')
-          },
-          {
-            name:"pmonitor",
-            path: '/process/monitor',
-            meta:{title:'报警器'},
-            component: () => import('@/views/process/monitor')
-          },
-        ]
+        component: () => import('@/views/process/list')
       },
       {
         name:"pedit",

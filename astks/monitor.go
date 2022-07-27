@@ -2,6 +2,7 @@ package astks
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 )
@@ -27,7 +28,7 @@ type Monitor struct {
 	// 为了防止持续报警轰炸
 	AlertInterval int64 `json:"continuityInterval"`
 
-	Notifys []string `json:"notifys"` // 报警器
+	Notify *Notify `json:"notify"` // 报警器
 }
 
 type MonitorState struct {
@@ -51,14 +52,6 @@ func (this *Monitor) trigger(cpu, mem, disk float64) (broken bool, info []string
 	return
 }
 
-func (this *Monitor) notify(msg string) {
-	for _, name := range this.Notifys {
-		if n, ok := notifyMgr.Notify[name]; ok {
-			n.Push(msg)
-		}
-	}
-}
-
 func (this *Monitor) Alert(state *MonitorState, cpu, mem, disk float64, name func() string) {
 	broken, info := this.trigger(cpu, mem, disk)
 	if !broken {
@@ -69,13 +62,17 @@ func (this *Monitor) Alert(state *MonitorState, cpu, mem, disk float64, name fun
 		nowUnix := now.Unix()
 		if state.TriggerTime == 0 {
 			state.TriggerTime = nowUnix
-		} else if nowUnix-state.TriggerTime > this.Interval {
+		} else if nowUnix-state.TriggerTime >= this.Interval {
 			// 持续时间内，已达到报警条件
-			if nowUnix-state.AlertTime > this.AlertInterval {
+			if nowUnix-state.AlertTime >= this.AlertInterval {
 				//
 				state.AlertTime = nowUnix
-				msg := fmt.Sprintf(alertMessage, strings.Join(info, ";"), name(), now.String())
-				this.notify(msg)
+				if this.Notify != nil {
+					msg := fmt.Sprintf(alertMessage, strings.Join(info, ";"), name(), now.String())
+					if err := this.Notify.Push(msg); err != nil {
+						log.Println(err)
+					}
+				}
 			}
 		}
 	}

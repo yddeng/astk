@@ -392,22 +392,4 @@ func (*processHandler) Bell(wait *WaitConn, user string, req struct {
 		p.Bell = req.Bell
 		saveStore(snProcessMgr)
 	}
-	wait.SetResult("", nil)
-}
-
-func (*processHandler) Monitor(wait *WaitConn, user string) {
-	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
-	defer func() { wait.Done() }()
-	wait.SetResult("", processMgr.Monitor)
-}
-
-func (*processHandler) MonitorSet(wait *WaitConn, user string, req Monitor) {
-	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
-	defer func() {
-		wait.SetResult("", nil)
-		wait.Done()
-	}()
-
-	processMgr.Monitor = &req
-	saveStore(snProcessMgr)
 }

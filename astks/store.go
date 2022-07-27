@@ -147,42 +147,18 @@ func (store *cmdMgrStore) Save() error {
 	return util.EncodeJsonToFile(cmdMgr, store.filename)
 }
 
-type notifyMgrStore struct {
-	storeBase
-}
-
-func (store *notifyMgrStore) Load(dataPath string) (err error) {
-	store.filename = path.Join(dataPath, store.file)
-	if err = util.DecodeJsonFromFile(&notifyMgr, store.filename); err != nil {
-		if os.IsNotExist(err) {
-			err = nil
-			notifyMgr = &NotifyMgr{
-				Notify: map[string]*Notify{},
-			}
-		}
-		return
-	}
-	return
-}
-
-func (store *notifyMgrStore) Save() error {
-	return util.EncodeJsonToFile(notifyMgr, store.filename)
-}
-
 type storeName string
 
 const (
 	snNodeMgr    storeName = "node_mgr"
 	snCmdMgr     storeName = "cmd_mgr"
 	snProcessMgr storeName = "process_mgr"
-	snNotifyMgr  storeName = "notify_mgr"
 )
 
 var (
 	nodeMgr    *NodeMgr
 	cmdMgr     *CmdMgr
 	processMgr *ProcessMgr
-	notifyMgr  *NotifyMgr
 )
 
 func init() {
@@ -194,8 +170,5 @@ func init() {
 	}}
 	stores[snProcessMgr] = &processMgrStore{storeBase{
 		file: "process_mgr.json",
-	}}
-	stores[snNotifyMgr] = &notifyMgrStore{storeBase{
-		file: "notify_mgr.json",
 	}}
 }

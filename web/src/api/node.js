@@ -23,3 +23,12 @@ export function nodeRemove (parameter) {
     data: parameter
   })
 }
+
+export function nodeBell (parameter) {
+  return request({
+    url: "node/bell",
+    method: 'post',
+    data: parameter
+  })
+}
+

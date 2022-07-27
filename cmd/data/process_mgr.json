@@ -22,7 +22,7 @@
         "cpu": 0,
         "mem": 0
       },
-      "bell": true,
+      "bell": false,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -101,8 +101,8 @@
         "timestamp": 1658738337,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0.028147703723931494,
-        "mem": 0.04825592041015625
+        "cpu": 0.021693974706987456,
+        "mem": 0.049591064453125
       },
       "bell": false,
       "priority": 10,
@@ -282,11 +282,11 @@
     }
   },
   "monitor": {
-    "cpu": 0,
+    "cpu": 11,
     "mem": 62,
     "disk": 0,
     "interval": 16,
     "continuityInterval": 3000,
-    "notifys": null
+    "notify": null
   }
 }

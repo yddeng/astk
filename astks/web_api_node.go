@@ -77,3 +77,22 @@ func (*nodeHandler) Remove(wait *WaitConn, user string, req struct {
 	delete(nodeMgr.Nodes, req.Name)
 	saveStore(snNodeMgr)
 }
+
+func (*nodeHandler) Bell(wait *WaitConn, user string, req struct {
+	Name string `json:"name"`
+	Bell bool   `json:"bell"`
+}) {
+	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	defer func() { wait.Done() }()
+
+	n, ok := nodeMgr.Nodes[req.Name]
+	if !ok {
+		wait.SetResult("不存在的节点", nil)
+		return
+	}
+
+	if n.Bell != req.Bell {
+		n.Bell = req.Bell
+		saveStore(snNodeMgr)
+	}
+}
