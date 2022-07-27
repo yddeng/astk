@@ -67,7 +67,7 @@ func (this *Monitor) Alert(state *MonitorState, cpu, mem, disk float64, name fun
 			if nowUnix-state.AlertTime >= this.AlertInterval {
 				//
 				state.AlertTime = nowUnix
-				if this.Notify != nil {
+				if this.Notify != nil && this.Notify.NotifyServer != "" {
 					msg := fmt.Sprintf(alertMessage, strings.Join(info, ";"), name(), now.String())
 					if err := this.Notify.Push(msg); err != nil {
 						log.Println(err)

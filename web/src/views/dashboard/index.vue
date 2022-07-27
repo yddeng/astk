@@ -155,6 +155,7 @@ export default {
           notifyServer:this.notify.notifyServer,
       }
       monitorNotify(args).then(()=>{
+          this.$message.info('操作成功')
           this.loadMonitor()
         })
       

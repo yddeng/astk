@@ -1,6 +1,9 @@
 package astks
 
-import "log"
+import (
+	"fmt"
+	"github.com/yddeng/dnet/dhttp"
+)
 
 type MsgNotifyType string
 
@@ -23,19 +26,48 @@ func (this *Notify) Type() MsgNotifyType {
 func (this *Notify) Push(msg string) error {
 	switch this.NotifyType {
 	case MsgNotifyTypeWeixin:
-		this.pushWeixinMessage(msg)
+		return this.pushWeixinMessage(msg)
 	case MsgNotifyTypeCallback:
-		this.pushCallbackMessage(msg)
+		return this.pushCallbackMessage(msg)
+	default:
+		return fmt.Errorf("push notify type %s invaild", this.NotifyType)
+	}
+}
+
+type NotifyMsg struct {
+	Message string `json:"message"`
+}
+
+func (this *Notify) pushWeixinMessage(msg string) error {
+	req, err := dhttp.PostJson(this.NotifyServer, NotifyMsg{Message: msg})
+	if err != nil {
+		return err
 	}
 
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("http post %s statecode %d", this.NotifyServer, resp.StatusCode)
+	}
 	return nil
 }
 
-func (this *Notify) pushWeixinMessage(msg string) {
-	log.Println("weixin push", msg)
-}
+func (this *Notify) pushCallbackMessage(msg string) error {
+	req, err := dhttp.PostJson(this.NotifyServer, NotifyMsg{Message: msg})
+	if err != nil {
+		return err
+	}
 
-func (this *Notify) pushCallbackMessage(msg string) {
-	log.Println("callback push", msg)
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
 
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("http post %s statecode %d", this.NotifyServer, resp.StatusCode)
+	}
+	return nil
 }

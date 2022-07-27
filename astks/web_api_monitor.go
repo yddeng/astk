@@ -35,12 +35,14 @@ func (*monitorHandler) SetRule(wait *WaitConn, user string, req struct {
 		nodeMgr.Monitor.Disk = req.Disk
 		nodeMgr.Monitor.Interval = req.Interval
 		nodeMgr.Monitor.AlertInterval = req.AlertInterval
+		saveStore(snNodeMgr)
 	} else if req.Type == "process" {
 		processMgr.Monitor.Cpu = req.Cpu
 		processMgr.Monitor.Mem = req.Mem
 		processMgr.Monitor.Disk = req.Disk
 		processMgr.Monitor.Interval = req.Interval
 		processMgr.Monitor.AlertInterval = req.AlertInterval
+		saveStore(snProcessMgr)
 	} else {
 		wait.SetResult("类型错误", nil)
 	}
@@ -60,11 +62,13 @@ func (*monitorHandler) SetNotify(wait *WaitConn, user string, req struct {
 			NotifyType:   req.NotifyType,
 			NotifyServer: req.NotifyServer,
 		}
+		saveStore(snNodeMgr)
 	} else if req.Type == "process" {
 		processMgr.Monitor.Notify = &Notify{
 			NotifyType:   req.NotifyType,
 			NotifyServer: req.NotifyServer,
 		}
+		saveStore(snProcessMgr)
 	} else {
 		wait.SetResult("类型错误", nil)
 	}
