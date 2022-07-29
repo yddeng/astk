@@ -193,7 +193,7 @@ func NewProcess(pid int32) (*Process, error) {
 	return this, nil
 }
 
-const tailLogLine = 10
+const tailLogLine = 20
 
 type tailLog struct {
 	logs         [][]byte // line -> 仅纪录20行数据

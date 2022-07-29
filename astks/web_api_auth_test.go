@@ -26,7 +26,7 @@ func startWebListener(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = Service(cfg); err != nil {
+	if err = Start(cfg); err != nil {
 		t.Fatal(err)
 	}
 

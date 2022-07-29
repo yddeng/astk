@@ -1,5 +1,5 @@
 {
-  "genId": 16,
+  "genId": 19,
   "process": {
     "1": {
       "id": 1,
@@ -17,61 +17,6 @@
         "status": "exited",
         "pid": 12280,
         "timestamp": 1658730654,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "bell": false,
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "11": {
-      "id": 11,
-      "name": "test10",
-      "dir": "",
-      "config": [],
-      "command": "g",
-      "labels": [
-        "test",
-        "label1"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658288401,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658455879,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "bell": false,
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
-    "13": {
-      "id": 13,
-      "name": "test11",
-      "dir": "",
-      "config": [],
-      "command": "f",
-      "labels": [
-        "label2"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658298772,
-      "state": {
-        "status": "stopped",
-        "pid": 0,
-        "timestamp": 1658730650,
         "exitMsg": "",
         "autoStartTimes": 0,
         "cpu": 0,
@@ -101,8 +46,8 @@
         "timestamp": 1658738337,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0.02618455542965965,
-        "mem": 0.04856586456298828
+        "cpu": 0.01798442081633832,
+        "mem": 0.04982948303222656
       },
       "bell": false,
       "priority": 10,
@@ -229,7 +174,7 @@
       "name": "test7",
       "dir": "",
       "config": [],
-      "command": "e",
+      "command": "esgdfg",
       "labels": [
         "test",
         "label1"

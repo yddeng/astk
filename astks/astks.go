@@ -39,6 +39,7 @@ var (
 	taskQueue = task.NewTaskPool(1, runtime.NumCPU()*1024)
 	center    *Center
 	app       *gin.Engine
+	webCfg    *WebConfig
 )
 
 func Start(cfg Config) (err error) {

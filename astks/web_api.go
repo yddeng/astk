@@ -248,4 +248,21 @@ func initHandler(app *gin.Engine) {
 	monitorGroup.POST("/info", warpHandle(monitorHandle.Info))
 	monitorGroup.POST("/rule", warpHandle(monitorHandle.SetRule))
 	monitorGroup.POST("/notify", warpHandle(monitorHandle.SetNotify))
+
+	gitHookHandle := new(githookHandler)
+	gitHookGroup := app.Group("/githook")
+	gitHookGroup.POST("/list", warpHandle(gitHookHandle.List))
+	gitHookGroup.POST("/create", warpHandle(gitHookHandle.Create))
+	gitHookGroup.POST("/s/:key", func(ctx *gin.Context) {
+		route := getCurrentRoute(ctx)
+		wait := newWaitConn(ctx, route)
+		if err := taskQueue.Submit(webTask(func() {
+			gitHookHandle.Hook(wait)
+		})); err != nil {
+			wait.SetResult("访问人数过多", nil)
+			wait.Done()
+		}
+		wait.Wait()
+	})
+
 }

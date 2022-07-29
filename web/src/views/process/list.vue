@@ -80,8 +80,8 @@
       <a-list-item slot="renderItem" slot-scope="item">
           <a-card :title="item.name" size="small" :bordered="false">
             <template slot="extra" >
-              <a-icon v-if="item.bell" type="bell" theme="twoTone" @click="processBell(item.id,false)" />
-              <a-icon v-else type="bell" @click="processBell(item.id,true)" />
+              <a-icon v-if="item.bell" type="alert" theme="twoTone" @click="processBell(item.id,false)" />
+              <a-icon v-else type="alert" @click="processBell(item.id,true)" />
             </template>
 
             <a-row style="height:24px;line-height:24px">
@@ -170,20 +170,32 @@
       :context="tail.context"
       :title="tailTitle"
       @cancel="tailLogCancel"
-    >
-    </a-log>
+    />
+
+    <a-edit
+      :visible="editVisible"
+      :option="editOption"
+      :model="editMdl"
+      :node-names="editNodeNames"
+      :labels="tags.labels"
+      @success="editSuccess"
+      @cancel="editCancel"
+    />
   </div>
 </template>
 <script>
 import { tags, processList, processDelete, processStart, processStop,
 processBatchStart, processBatchStop,processTail,processBell } from '@/api/process'
+import { nodeNames } from '@/api/node'
 import moment from 'moment'
 import Log from './modal/log'
+import Edit from './modal/edit'
 
 export default {
   name: 'ProcessList',
   components:{
     'a-log': Log,
+    'a-edit': Edit,
   },
   data () {
     return {
@@ -211,6 +223,11 @@ export default {
       tailTitle:'',
       tailVisible:false,
       tailTicker:null,
+
+      editOption:'',
+      editVisible:false,
+      editMdl:null,
+      editNodeNames:[],
 
       pageNo:1,
       pageSize:8,
@@ -343,8 +360,26 @@ export default {
       })
     },
     openEdit (item, option) {
-      console.log(option, item)
-      this.$router.push({ name: 'pedit', params: { option: option, labels: this.tags.labels, item: { ...item } } })
+      nodeNames().then(res => {
+        this.editNodeNames = res
+        if (option === 'edit' || option === 'copy') {
+          this.editMdl = { ...item }
+        }else{
+          this.editMdl = null
+        }
+        this.editOption = option
+        console.log(option, this.editMdl)
+        this.editVisible = true
+      })
+    },
+    editSuccess(){
+      this.loadProcess()
+      this.editVisible = false
+      this.editMdl = null
+    },
+    editCancel(){
+      this.editVisible = false
+      this.editMdl = null
     },
     startAllProcess () {
       const args = this.makeLabelArgs()

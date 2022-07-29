@@ -147,18 +147,42 @@ func (store *cmdMgrStore) Save() error {
 	return util.EncodeJsonToFile(cmdMgr, store.filename)
 }
 
+type gitHookMgrStore struct {
+	storeBase
+}
+
+func (store *gitHookMgrStore) Load(dataPath string) (err error) {
+	store.filename = path.Join(dataPath, store.file)
+	if err = util.DecodeJsonFromFile(&gitHookMgr, store.filename); err != nil {
+		if os.IsNotExist(err) {
+			err = nil
+			gitHookMgr = &GitHookMgr{
+				Hooks: map[string]*GitHook{},
+			}
+		}
+		return
+	}
+	return
+}
+
+func (store *gitHookMgrStore) Save() error {
+	return util.EncodeJsonToFile(gitHookMgr, store.filename)
+}
+
 type storeName string
 
 const (
 	snNodeMgr    storeName = "node_mgr"
 	snCmdMgr     storeName = "cmd_mgr"
 	snProcessMgr storeName = "process_mgr"
+	snGitHookMgr storeName = "githook_mgr"
 )
 
 var (
 	nodeMgr    *NodeMgr
 	cmdMgr     *CmdMgr
 	processMgr *ProcessMgr
+	gitHookMgr *GitHookMgr
 )
 
 func init() {
@@ -170,5 +194,8 @@ func init() {
 	}}
 	stores[snProcessMgr] = &processMgrStore{storeBase{
 		file: "process_mgr.json",
+	}}
+	stores[snGitHookMgr] = &gitHookMgrStore{storeBase{
+		file: "githook_mgr.json",
 	}}
 }

@@ -158,7 +158,6 @@ export default {
           this.$message.info('操作成功')
           this.loadMonitor()
         })
-      
     }
   }
 }

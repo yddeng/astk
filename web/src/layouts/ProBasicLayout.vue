@@ -11,7 +11,7 @@
 
     <template v-slot:menuHeaderRender>
       <div>
-        <a-icon type="global"/>
+        <a-icon type="rocket"/>
         <h1>{{ title }}</h1>
       </div>
     </template>

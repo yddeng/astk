@@ -1,10 +1,13 @@
 <template>
-  <page-header-wrapper
-    :breadcrumb="{}"
+  <a-modal
+    :width="1000"
     :title="title"
-    @back="goback"
+    centered
+    :maskClosable="false"
+    :visible="visible"
+    @ok="submitForm"
+    @cancel="cancel"
   >
-    <a-card :bordered="false">
       <a-form-model
         ref="processEdit"
         :model="form"
@@ -149,29 +152,40 @@
             </template>
           </a-select>
         </a-form-model-item>
-        <a-form-model-item :wrapper-col="{ span: 14,offset:6}">
-          <a-button type="primary" @click="submitForm">
-            {{ submitText }}
-          </a-button>
-          <a-button style="margin-left: 10px" @click="goback">
-            取消
-          </a-button>
-        </a-form-model-item>
       </a-form-model>
-
-    </a-card>
-  </page-header-wrapper>
+  </a-modal>
 </template>
 
 <script>
 import { processCreate, processUpdate } from '@/api/process'
-import { nodeNames } from '@/api/node'
 
 export default {
   name: 'ProcessEdit',
+  props: {
+    visible: {
+      type: Boolean,
+      required: true
+    },
+    option: {
+      type: String,
+      default: ''
+    },
+    labels: {
+      type: [],
+      default: null
+    },
+    nodeNames:{
+      type:[],
+      default: null
+    },
+    model:{
+      type: Object,
+      default: null
+    }
+  },
   data () {
     return {
-      labelCol: { span: 3 },
+      labelCol: { span: 4 },
       wrapperCol: { span: 14 },
       cmd_question_title: '命令中存在配置文件时，路径前加上{{path}}，自动填充',
       rules: {
@@ -202,27 +216,44 @@ export default {
         node: '',
         labels: []
       },
-      title: '新建配置',
-      nodeNames: [],
-      labels: [],
+      title:'',
       labelInputVisible: false,
       labelInputValue: '',
-      option: '',
-      submitText: '创建'
     }
   },
-  mounted () {
-    this.option = this.$route.params.option
-    this.labels = this.$route.params.labels
-    this.loadNodeNames()
-    if (this.option === 'edit' || this.option === 'copy') {
-      this.form = { ...this.$route.params.item }
+  watch: {
+    model: {
+      handler (nv) {
+        if (nv) { 
+          this.form = { ...nv }
+        } else { 
+          this.form = {
+            id: 0,
+            name: '',
+            dir: '',
+            config: [],
+            command: '',
+            priority: 10,
+            startSecs: 3,
+            stopWaitSecs: 10,
+            autoStartTimes: 3,
+            node: '',
+            labels: []
+          }
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    option:{
+      handler(nval){
+        if (nval === 'edit') {
+          this.title = '修改配置'
+        }else{
+          this.title = '新增配置'
+        }
+      }
     }
-    if (this.option === 'edit') {
-      this.submitText = '修改'
-      this.title = '修改配置'
-    }
-    console.log(this.option, this.$route.params, this.form)
   },
   methods: {
     removeCfg (item) {
@@ -238,12 +269,7 @@ export default {
         context: ''
       })
     },
-    loadNodeNames () {
-      nodeNames()
-        .then(res => {
-          this.nodeNames = res
-        })
-    },
+    
     handleLableChange(label, checked){
       const nextSelectedTags = checked ? [...this.form.labels, label] : this.form.labels.filter(t => t !== label);
       this.form.labels = nextSelectedTags;
@@ -282,19 +308,21 @@ export default {
           args.stopWaitSecs = parseInt(this.form.stopWaitSecs)
           if (this.option === 'create' || this.option === 'copy') {
             processCreate(args).then(() => {
-              this.goback()
+              this.$refs.processEdit.resetFields()// 清除表单数据
+                this.$emit('success')// 通知外部页面 添加成功
             })
           } else {
             processUpdate(args).then(() => {
-              this.goback()
+              this.$refs.processEdit.resetFields()// 清除表单数据
+                this.$emit('success')// 通知外部页面 添加成功
             })
           }
         }
       })
     },
-    goback () {
-      this.$router.back()
-      // this.$router.push({ name: 'plist', params: { path: this.path } })
+    cancel(){
+      this.$refs.processEdit.resetFields()
+      this.$emit('cancel')
     }
   }
 }

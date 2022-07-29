@@ -39,7 +39,26 @@ type NotifyMsg struct {
 }
 
 func (this *Notify) pushWeixinMessage(msg string) error {
-	req, err := dhttp.PostJson(this.NotifyServer, NotifyMsg{Message: msg})
+
+	type WeixinMessage struct {
+		Msgtype string `json:"msgtype"`
+		Text    struct {
+			Content       string   `json:"content"`
+			MentionedList []string `json:"mentioned_list"`
+		} `json:"text"`
+	}
+
+	data := WeixinMessage{
+		Msgtype: "text",
+		Text: struct {
+			Content       string   `json:"content"`
+			MentionedList []string `json:"mentioned_list"`
+		}{
+			Content: msg,
+		},
+	}
+
+	req, err := dhttp.PostJson(this.NotifyServer, data)
 	if err != nil {
 		return err
 	}

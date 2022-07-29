@@ -146,7 +146,7 @@ func (c *Center) onLogin(replier *drpc.Replier, req interface{}) {
 	name := msg.GetName()
 	client := nodeMgr.Nodes[name]
 	if client == nil {
-		client = &Node{Name: name}
+		client = &Node{Name: name, Bell: true}
 		nodeMgr.Nodes[name] = client
 	}
 	if client.session != nil {

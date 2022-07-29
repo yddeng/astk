@@ -4,10 +4,6 @@ import (
 	"log"
 )
 
-var (
-	webCfg *WebConfig
-)
-
 type authHandler struct {
 }
 

@@ -73,13 +73,6 @@ export const asyncRouterMap = [
         component: () => import('@/views/process/list')
       },
       {
-        name:"pedit",
-        hidden: true,
-        path: '/process/edit',
-        meta:{title:'编辑'},
-        component: () => import('@/views/process/edit')
-      },
-      {
         name:'git',
         path:'/git',
         meta:{title:'Git版本管理',icon:'project'},
