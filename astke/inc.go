@@ -77,10 +77,10 @@ func (er *Executor) onOpenChannel(replier *drpc.Replier, req interface{}) {
 	}
 
 	channel := &incIo.Channel{
-		ChanID: msg.GetOpenID(),
-		Conn:   conn,
+		ChanID:  msg.GetOpenID(),
+		Conn:    conn,
+		Session: er.session,
 	}
 
-	replier.Channel.
-		_ = replier.Reply(&protocol.CreateDialerResp{}, nil)
+	_ = replier.Reply(&protocol.CreateDialerResp{}, nil)
 }

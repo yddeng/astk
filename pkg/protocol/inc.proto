@@ -5,7 +5,7 @@ option go_package = "protocol";
 message CreateDialerReq{
     string Type = 1;
     string ip   = 2;
-    int32  port = 3;
+    string port = 3;
     string id   = 4;
 }
 
@@ -17,7 +17,7 @@ message OpenConnectionReq{
     string id      = 1;
     int32  openID  = 2;
     string srcIp   = 3;
-    int32  srcPort = 4;
+    string srcPort = 4;
 }
 
 message OpenConnectionResp{

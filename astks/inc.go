@@ -7,6 +7,9 @@ import (
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
 	"log"
+	"net"
+	"strconv"
+	"time"
 )
 
 type IncType string
@@ -20,18 +23,63 @@ const (
 type Inc struct {
 	ID         string  `json:"id"`
 	Type       IncType `json:"type"`
-	RemotePort int32   `json:"remotePort"` // 访问端口
+	RemotePort string   `json:"remotePort"` // 访问端口
 	Node       string  `json:"node"`       // 被代理的节点
 	LocalIP    string  `json:"localIp"`    // 节点被代理地址
-	LocalPort  int32   `json:"localPort"`  // 节点被代理端口
+	LocalPort  string   `json:"localPort"`  // 节点被代理端口
 	Opened     bool    `json:"opened"`     // 是否开启
 
-	OpenID  int32                    `json:"-"`
-	Channel map[int32]*incIo.Channel `json:"-"`
+	listener net.Listener
+	OpenID   int32                    `json:"-"`
+	Channel  map[int32]*incIo.Channel `json:"-"`
 }
 
 type IncMgr struct {
 	IncMap map[string]*Inc `json:"incMap"`
+}
+
+func (this *Inc) startListener() error {
+	switch this.Type {
+	case IncTypeHttp, IncTypeHttps, IncTypeTCP:
+		return this.startTcpListener()
+	default:
+		return nil
+	}
+}
+
+func (this *Inc) startTcpListener() (err error) {
+	this.listener, err = net.Listen("tcp", net.JoinHostPort("0.0.0.0", strconv.Itoa(int(this.RemotePort))))
+	if err != nil {
+		return
+	}
+
+	go func() {
+		for {
+			c, err := this.listener.Accept()
+			if err != nil {
+				if ne, ok := err.(net.Error); ok && ne.Temporary() {
+					time.Sleep(time.Millisecond * 5)
+					continue
+				}
+			}
+
+			go this.openChannel(c)
+		}
+	}()
+	return
+}
+
+func (this *Inc) openChannel(conn net.Conn) {
+	srcIp,srcPort,err := net.SplitHostPort(conn.RemoteAddr().String())
+	if err != nil{
+		log.Println(err)
+	}
+	req := &protocol.OpenConnectionReq{
+		Id:                   this.ID,
+		OpenID:               this.OpenID,
+		SrcIp:                ,
+		SrcPort:              0,
+	}
 }
 
 func (this *Inc) createDialer(callback func(err string)) error {

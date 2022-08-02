@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yddeng/utils/task"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -40,6 +41,7 @@ var (
 	center    *Center
 	app       *gin.Engine
 	webCfg    *WebConfig
+	foreignIp string
 )
 
 func Start(cfg Config) (err error) {
@@ -49,8 +51,14 @@ func Start(cfg Config) (err error) {
 	}
 
 	centerCfg := cfg.CenterConfig
+	ip, port, err := net.SplitHostPort(centerCfg.Address)
+	if err != nil {
+		return err
+	}
+	foreignIp = ip
+
 	log.Printf("center server run %s.\n", centerCfg.Address)
-	center = newCenter(centerCfg.Address, centerCfg.Token)
+	center = newCenter(net.JoinHostPort("0.0.0.1", port), centerCfg.Token)
 	go func() {
 		if err := center.startListener(); err != nil {
 			panic(err)
@@ -115,9 +123,13 @@ func webServiceRun(cfg *WebConfig) {
 
 	initHandler(app)
 
+	_, port, err := net.SplitHostPort(cfg.Address)
+	if err != nil {
+		panic(err)
+	}
 	log.Printf("web server run %s.\n", cfg.Address)
 	go func() {
-		if err := app.Run(cfg.Address); err != nil {
+		if err := app.Run(net.JoinHostPort("0.0.0.0", port)); err != nil {
 			panic(err)
 		}
 	}()
