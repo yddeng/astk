@@ -91,7 +91,12 @@ const (
 	CmdProcState  = 5
 	CmdTailLog    = 6
 
-	CmdNodeState = 101
+	CmdCreateDialer    = 11
+	CmdOpenConnection  = 12
+	CmdCloseConnection = 13
+
+	CmdNodeState  = 101
+	CmdIncMessage = 102
 )
 
 func init() {
@@ -115,4 +120,15 @@ func init() {
 
 	Register("req", &protocol.TailLogReq{}, CmdTailLog)
 	Register("resp", &protocol.TailLogResp{}, CmdTailLog)
+
+	Register("req", &protocol.CreateDialerReq{}, CmdCreateDialer)
+	Register("resp", &protocol.CreateDialerResp{}, CmdCreateDialer)
+
+	Register("req", &protocol.OpenConnectionReq{}, CmdOpenConnection)
+	Register("resp", &protocol.OpenConnectionResp{}, CmdOpenConnection)
+
+	Register("req", &protocol.CloseConnectionReq{}, CmdCloseConnection)
+	Register("resp", &protocol.CloseConnectionResp{}, CmdCloseConnection)
+
+	Register("msg", &protocol.IncConnMessage{}, CmdIncMessage)
 }

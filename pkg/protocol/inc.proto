@@ -1,0 +1,40 @@
+syntax = "proto3";
+option go_package = "protocol";
+
+
+message CreateDialerReq{
+    string Type = 1;
+    string ip   = 2;
+    int32  port = 3;
+    string id   = 4;
+}
+
+message CreateDialerResp{
+    string code = 1;
+}
+
+message OpenConnectionReq{
+    string id      = 1;
+    int32  openID  = 2;
+    string srcIp   = 3;
+    int32  srcPort = 4;
+}
+
+message OpenConnectionResp{
+    string code  = 1;
+    int32 openID = 2;
+}
+
+message CloseConnectionReq{
+    string id      = 1;
+    int32  openID  = 2;
+}
+
+message CloseConnectionResp{
+    string code  = 1;
+}
+
+message IncConnMessage{
+    int32 openID = 1;
+    bytes data   = 2;
+}
