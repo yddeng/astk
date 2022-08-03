@@ -16,7 +16,7 @@ type githookHandler struct {
 }
 
 func (*githookHandler) genWebHook(key string) string {
-	return "http://" + webCfg.Address + "/githook/s/" + key
+	return fmt.Sprintf("http://%s:%d/githook/s/%s", config.Ip, config.WebConfig.Port, key)
 }
 
 func (*githookHandler) List(wait *WaitConn, user string, req struct {

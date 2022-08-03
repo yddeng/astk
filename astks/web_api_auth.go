@@ -15,7 +15,8 @@ func (*authHandler) Login(wait *WaitConn, user string, req struct {
 	log.Printf("%s %v\n", wait.route, req)
 	defer func() { wait.Done() }()
 
-	if webCfg.Admin.Username != req.Username || webCfg.Admin.Password != req.Password {
+	if config.WebConfig.Username != req.Username ||
+		config.WebConfig.Password != req.Password {
 		wait.SetResult("用户或密码错误", nil)
 		return
 	}

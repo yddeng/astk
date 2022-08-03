@@ -1,15 +1,14 @@
 {
   "data_path": "./data",
+  "ip": "10.128.2.123",
   "center_config": {
-    "address": "0.0.0.0:40155",
+    "port": 40155,
     "token": "token"
   },
   "web_config": {
-    "address": "0.0.0.0:40156",
+    "port": 40156,
     "index": "../../front-vue/dist",
-    "admin": {
-      "username": "admin",
-      "password": "123456"
-    }
+    "username": "admin",
+    "password": "123456"
   }
 }
