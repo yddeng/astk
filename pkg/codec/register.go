@@ -83,20 +83,17 @@ func Unmarshal(namespace string, id uint16, buff []byte) (interface{}, error) {
 }
 
 const (
-	CmdHeartbeat  = 0
-	CmdLogin      = 1
-	CmdCmdExec    = 2
-	CmdProcStart  = 3
-	CmdProcSignal = 4
-	CmdProcState  = 5
-	CmdTailLog    = 6
+	CmdHeartbeat   = 0
+	CmdLogin       = 1
+	CmdCmdExec     = 2
+	CmdProcStart   = 3
+	CmdProcSignal  = 4
+	CmdProcState   = 5
+	CmdTailLog     = 6
+	CmdOpenChannel = 7
 
-	CmdCreateDialer    = 11
-	CmdOpenConnection  = 12
-	CmdCloseConnection = 13
-
-	CmdNodeState  = 101
-	CmdIncMessage = 102
+	CmdNodeState      = 101
+	CmdChannelMessage = 102
 )
 
 func init() {
@@ -121,14 +118,8 @@ func init() {
 	Register("req", &protocol.TailLogReq{}, CmdTailLog)
 	Register("resp", &protocol.TailLogResp{}, CmdTailLog)
 
-	Register("req", &protocol.CreateDialerReq{}, CmdCreateDialer)
-	Register("resp", &protocol.CreateDialerResp{}, CmdCreateDialer)
+	Register("req", &protocol.OpenChannelReq{}, CmdOpenChannel)
+	Register("resp", &protocol.OpenChannelResp{}, CmdOpenChannel)
 
-	Register("req", &protocol.OpenConnectionReq{}, CmdOpenConnection)
-	Register("resp", &protocol.OpenConnectionResp{}, CmdOpenConnection)
-
-	Register("req", &protocol.CloseConnectionReq{}, CmdCloseConnection)
-	Register("resp", &protocol.CloseConnectionResp{}, CmdCloseConnection)
-
-	Register("msg", &protocol.IncConnMessage{}, CmdIncMessage)
+	Register("msg", &protocol.ChannelMessage{}, CmdChannelMessage)
 }

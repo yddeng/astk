@@ -1,86 +1,87 @@
 package astke
 
 import (
-	"fmt"
 	"github.com/yddeng/astk/pkg/incIo"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
+	"log"
 	"net"
 )
 
-type Inc struct {
-	ID   string
-	Type string
-	IP   string
-	Port int32
+type Channel struct {
+	ID             string
+	ChanID         int32
+	Type           string
+	IP, Port       string
+	SrcIP, SrcPort string
 
-	Channel map[int32]*incIo.Channel
+	ioc *incIo.Channel
 }
 
-func (this *Inc) dial() (net.Conn, error) {
-	return net.Dial("tcp", net.JoinHostPort(this.IP, fmt.Sprintf("%d", this.Port)))
+var channels = map[int32]*Channel{}
+
+func (this *Channel) dial() (net.Conn, error) {
+	return net.Dial("tcp", net.JoinHostPort(this.IP, this.Port))
 }
 
-var incMap = map[string]*Inc{}
-
-func (er *Executor) onCreateDialer(replier *drpc.Replier, req interface{}) {
-	msg := req.(*protocol.CreateDialerReq)
-	// log.Printf("onTailLog %v", msg)
-
-	if inc, ok := incMap[msg.GetId()]; ok {
-		for _, channel := range inc.Channel {
-			channel.Close()
-		}
-		delete(incMap, msg.GetId())
-	}
-
-	inc := &Inc{
-		ID:      msg.GetId(),
-		Type:    msg.GetType(),
-		IP:      msg.GetIp(),
-		Port:    msg.GetPort(),
-		Channel: map[int32]*incIo.Channel{},
-	}
-
-	// test
-	conn, err := inc.dial()
-	if err != nil {
-		_ = replier.Reply(&protocol.CreateDialerResp{Code: err.Error()}, nil)
-		return
-	}
-	_ = conn.Close()
-
-	incMap[msg.GetId()] = inc
-
-	_ = replier.Reply(&protocol.CreateDialerResp{}, nil)
+func (this *Channel) close(chanID int32) {
+	er.Submit(func() {
+		//log.Printf("channel %d closed", this.ChanID)
+		delete(channels, this.ChanID)
+	})
 }
 
 func (er *Executor) onOpenChannel(replier *drpc.Replier, req interface{}) {
-	msg := req.(*protocol.OpenConnectionReq)
-	// log.Printf("onTailLog %v", msg)
+	msg := req.(*protocol.OpenChannelReq)
+	log.Printf("onOpenChannel %v", msg)
 
-	inc, ok := incMap[msg.GetId()]
-	if !ok {
-		_ = replier.Reply(&protocol.OpenConnectionResp{Code: "not exist"}, nil)
-		return
+	chanID := msg.GetChanID()
+	if channel, ok := channels[chanID]; ok {
+		channel.ioc.Close()
 	}
 
-	if channel, ok := inc.Channel[msg.GetOpenID()]; ok {
-		channel.Close()
-		delete(inc.Channel, msg.GetOpenID())
+	channel := &Channel{
+		ID:      msg.GetId(),
+		ChanID:  chanID,
+		Type:    msg.GetType(),
+		IP:      msg.GetIp(),
+		Port:    msg.GetPort(),
+		SrcIP:   msg.GetSrcIp(),
+		SrcPort: msg.GetSrcPort(),
 	}
 
-	conn, err := inc.dial()
+	conn, err := channel.dial()
 	if err != nil {
-		_ = replier.Reply(&protocol.OpenConnectionResp{Code: err.Error()}, nil)
+		_ = replier.Reply(&protocol.OpenChannelResp{Code: err.Error()}, nil)
 		return
 	}
 
-	channel := &incIo.Channel{
-		ChanID:  msg.GetOpenID(),
-		Conn:    conn,
-		Session: er.session,
+	// test
+	if chanID == 0 {
+		_ = conn.Close()
+	} else {
+		channel.ioc = incIo.New(conn, er.session, channel.close)
+		channel.ioc.ChanID = channel.ChanID
+		channel.ioc.ID = channel.ID
+		go channel.ioc.ChanReader()
+		go channel.ioc.ChanWriter()
+		channels[chanID] = channel
 	}
 
-	_ = replier.Reply(&protocol.CreateDialerResp{}, nil)
+	_ = replier.Reply(&protocol.OpenChannelResp{}, nil)
+}
+
+func (er *Executor) onChannelMessage(msg *protocol.ChannelMessage) {
+	chanID := msg.GetChanID()
+	channel, ok := channels[chanID]
+	if !ok {
+		return
+	}
+
+	if msg.GetEof() {
+		channel.ioc.Close()
+	} else {
+		channel.ioc.Write(msg)
+	}
+
 }

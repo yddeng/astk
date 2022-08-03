@@ -7,14 +7,6 @@
     "state": "exited",
     "createTime": 1658730654171
   },
-  "14": {
-    "pid": 94673,
-    "stderr": "/Users/yidongdeng/workspace/initialthree/.astk/center/stderr.log",
-    "id": 14,
-    "name": "center",
-    "state": "running",
-    "createTime": 1658738337270
-  },
   "15": {
     "pid": 24297,
     "stderr": "/Users/yidongdeng/workspace/initialthree/.astk/dir_1.1.1_dev_123/stderr.log",

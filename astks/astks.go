@@ -58,7 +58,7 @@ func Start(cfg Config) (err error) {
 	foreignIp = ip
 
 	log.Printf("center server run %s.\n", centerCfg.Address)
-	center = newCenter(net.JoinHostPort("0.0.0.1", port), centerCfg.Token)
+	center = newCenter(net.JoinHostPort("0.0.0.0", port), centerCfg.Token)
 	go func() {
 		if err := center.startListener(); err != nil {
 			panic(err)

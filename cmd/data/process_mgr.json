@@ -41,13 +41,13 @@
       "user": "admin",
       "createAt": 1658300693,
       "state": {
-        "status": "running",
-        "pid": 94673,
+        "status": "stopped",
+        "pid": 0,
         "timestamp": 1658738337,
         "exitMsg": "",
         "autoStartTimes": 0,
-        "cpu": 0.01798442081633832,
-        "mem": 0.04982948303222656
+        "cpu": 0,
+        "mem": 0
       },
       "bell": false,
       "priority": 10,

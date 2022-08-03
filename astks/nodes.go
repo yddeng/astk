@@ -29,7 +29,6 @@ func newCenter(address, token string) *Center {
 	c.rpcClient = drpc.NewClient()
 	c.rpcServer = drpc.NewServer()
 	c.rpcServer.Register(proto.MessageName(&protocol.LoginReq{}), c.onLogin)
-	log.Printf("tcp server run %s.\n", address)
 	return c
 }
 
@@ -78,16 +77,20 @@ func (c *Center) startListener() error {
 }
 
 func (c *Center) dispatchMsg(session dnet.Session, msg *codec.Message) {
+	ctx := session.Context()
+	if ctx == nil {
+		return
+	}
+	node := ctx.(*Node)
+
 	cmd := msg.GetCmd()
 	switch cmd {
 	case codec.CmdHeartbeat:
 		_ = session.Send(msg)
 	case codec.CmdNodeState:
-		ctx := session.Context()
-		if ctx != nil {
-			Node := ctx.(*Node)
-			Node.onNodeState(msg.GetData().(*protocol.NodeState))
-		}
+		node.onNodeState(msg.GetData().(*protocol.NodeState))
+	case codec.CmdChannelMessage:
+		node.onChannelMessage(msg.GetData().(*protocol.ChannelMessage))
 	default:
 
 	}

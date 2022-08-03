@@ -75,3 +75,24 @@ message nodeState{
     map<string,string> host = 4;
     map<string,string> net  = 5;
 }
+
+message OpenChannelReq{
+    int32  chanID  = 1;
+    string srcIp   = 2;
+    string srcPort = 3;
+    string Type    = 4;
+    string ip      = 5;
+    string port    = 6;
+    string id      = 7;
+}
+
+message OpenChannelResp{
+    string code = 1;
+}
+
+message ChannelMessage{
+    int32  chanID  = 1;
+    bytes  data    = 2;
+    bool   eof     = 3;
+    string id      = 4;
+}

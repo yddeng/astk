@@ -265,4 +265,11 @@ func initHandler(app *gin.Engine) {
 		wait.Wait()
 	})
 
+	incHandle := new(incHandler)
+	incGroup := app.Group("/inc")
+	incGroup.POST("/list", warpHandle(incHandle.List))
+	incGroup.POST("/create", warpHandle(incHandle.Create))
+	incGroup.POST("/delete", warpHandle(incHandle.Delete))
+	incGroup.POST("/opened", warpHandle(incHandle.Opened))
+
 }

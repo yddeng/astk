@@ -166,7 +166,6 @@ export default {
   },
   methods: {
     getNodeList () {
-      this.nodes = []
       this.onlineNodeCnt = 0
       const args = { pageNo: 1, pageSize: 1000 }
       nodeList(args)

@@ -182,7 +182,15 @@ func (er *Executor) tick() {
 	}
 }
 
-func (er *Executor) dispatchMsg(session dnet.Session, msg *codec.Message) {}
+func (er *Executor) dispatchMsg(session dnet.Session, msg *codec.Message) {
+	cmd := msg.GetCmd()
+	switch cmd {
+	case codec.CmdChannelMessage:
+		er.onChannelMessage(msg.GetData().(*protocol.ChannelMessage))
+	default:
+
+	}
+}
 
 var er *Executor
 
@@ -199,6 +207,7 @@ func Start(cfg Config) (err error) {
 	er.rpcServer.Register(proto.MessageName(&protocol.ProcessSignalReq{}), er.onProcSignal)
 	er.rpcServer.Register(proto.MessageName(&protocol.ProcessStateReq{}), er.onProcState)
 	er.rpcServer.Register(proto.MessageName(&protocol.TailLogReq{}), er.onTailLog)
+	er.rpcServer.Register(proto.MessageName(&protocol.OpenChannelReq{}), er.onOpenChannel)
 
 	loadProcess(cfg.DataPath)
 

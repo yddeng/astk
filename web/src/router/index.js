@@ -82,7 +82,7 @@ export const asyncRouterMap = [
         name:'intranet',
         path:'/intranet',
         meta:{title:'内网穿透',icon:'project'},
-        component: () => import('@/layouts/BlankLayout'),
+        component: () => import('@/views/inc/list'),
       }
     ]
   },
