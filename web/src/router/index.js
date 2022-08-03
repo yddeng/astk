@@ -75,13 +75,13 @@ export const asyncRouterMap = [
       {
         name:'git',
         path:'/git',
-        meta:{title:'Git版本管理',icon:'project'},
+        meta:{title:'代码发布',icon:'github'},
         component: () => import('@/layouts/BlankLayout'),
       },
       {
         name:'intranet',
         path:'/intranet',
-        meta:{title:'内网穿透',icon:'project'},
+        meta:{title:'内网穿透',icon:'link'},
         component: () => import('@/views/inc/list'),
       }
     ]

@@ -1,6 +1,7 @@
 package astke
 
 import (
+	"fmt"
 	"github.com/yddeng/astk/pkg/incIo"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
@@ -21,7 +22,12 @@ type Channel struct {
 var channels = map[int32]*Channel{}
 
 func (this *Channel) dial() (net.Conn, error) {
-	return net.Dial("tcp", net.JoinHostPort(this.IP, this.Port))
+	switch this.Type {
+	case "tcp", "http", "https":
+		return net.Dial("tcp", net.JoinHostPort(this.IP, this.Port))
+	default:
+		return nil, fmt.Errorf("invaild type %s", this.Type)
+	}
 }
 
 func (this *Channel) close(chanID int32) {
