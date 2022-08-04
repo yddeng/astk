@@ -80,10 +80,4 @@ export function processTail (parameter) {
   })
 }
 
-export function processBell (parameter) {
-  return request({
-    url: "process/bell",
-    method: 'post',
-    data: parameter
-  })
-}
+

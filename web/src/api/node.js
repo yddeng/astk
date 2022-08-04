@@ -24,11 +24,5 @@ export function nodeRemove (parameter) {
   })
 }
 
-export function nodeBell (parameter) {
-  return request({
-    url: "node/bell",
-    method: 'post',
-    data: parameter
-  })
-}
+
 

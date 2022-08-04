@@ -78,23 +78,16 @@
       :data-source="data.process"
     >
       <a-list-item slot="renderItem" slot-scope="item">
-          <a-card :title="item.name" size="small" :bordered="false">
-            <template slot="extra" >
+          <a-card size="default" :bordered="false">
+            <!-- <template slot="extra" >
               <a-icon v-if="item.bell" type="alert" theme="twoTone" @click="processBell(item.id,false)" />
               <a-icon v-else type="alert" @click="processBell(item.id,true)" />
-            </template>
-
-            <a-row style="height:24px;line-height:24px">
-              <a-col :span="3">节点</a-col>
-              <a-col :span="20">{{ item.node }}</a-col>
-            </a-row>
-            <a-row style="height:24px;line-height:24px">
-              <a-col :span="3">重启</a-col>
-              <a-col :span="20">{{ item.state.autoStartTimes }}次</a-col>
-            </a-row>
-            <a-row style="height:24px;line-height:24px">
-              <a-col :span="3">状态</a-col>
-              <a-col :span="20">
+            </template>  -->
+            <a-card-meta :title="item.name">
+              <!-- <a-avatar slot="avatar" style="color: #f56a00; backgroundColor: #fde3cf">
+              {{item.name.slice(0,1)}}
+              </a-avatar> -->
+              <template slot="description"> 
                 <a-popover v-if="item.state.status==='exited'" placement="topRight" trigger="click">
                   <span slot="content" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
                   <a-tag :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
@@ -103,28 +96,32 @@
                 <span v-if="item.state.status==='running'">
                   Pid:{{ item.state.pid }}, Age: {{ item.state.timestamp | showAge }}
                 </span> 
-              </a-col>
-            </a-row>
-            <a-row style="height:24px;line-height:24px">
-              <a-col :span="3">CPU</a-col>
-              <a-col :span="15">
-                <a-progress
-                  :stroke-color="progressColor(item.state.cpu)"
-                  :percent="parseFloat(item.state.cpu.toFixed(2))" 
-                  status="normal"/>
-                  
-              </a-col>
-            </a-row>
-            <a-row style="height:24px;line-height:24px">
-              <a-col :span="3">内存</a-col>
-              <a-col :span="15">
-                <a-progress
-                  status="normal"
-                  :stroke-color="progressColor(item.state.mem)"
-                  :percent="parseFloat(item.state.mem.toFixed(2))" />
-              </a-col>
-            </a-row>
-          
+                <br/><br/>
+                <a-row type="flex" justify="space-around">
+                  <a-col :span="12">
+                  <a-statistic
+                    title="CPU使用率"
+                    :value="item.state.cpu"
+                    :precision="2"
+                    suffix="%"
+                    :value-style="{color:progressColor(item.state.cpu)}"
+                  >
+                  </a-statistic>
+                </a-col>
+                <a-col :span="12">
+                  <a-statistic
+                    title="内存使用率"
+                    :value="item.state.mem"
+                    :precision="2"
+                    suffix="%"
+                    :value-style="{color:progressColor(item.state.mem)}"
+                  >
+                  </a-statistic>
+                </a-col>
+              </a-row>
+             </template>
+            </a-card-meta>
+                      
             <template slot="actions" >
               <a v-if="item.state.status === 'exited' || item.state.status === 'stopped'" @click="startProcess(item.id)">启动</a>
               <a v-else-if="item.state.status === 'running'" @click="stopProcess(item.id)">停止</a>
@@ -185,7 +182,7 @@
 </template>
 <script>
 import { tags, processList, processDelete, processStart, processStop,
-processBatchStart, processBatchStop,processTail,processBell } from '@/api/process'
+processBatchStart, processBatchStop,processTail } from '@/api/process'
 import { nodeStatus } from '@/api/node'
 import moment from 'moment'
 import Log from './modal/log'
@@ -324,6 +321,7 @@ export default {
       this.tailTicker = setInterval(() => {
         this.processTailLoop()
       }, 1000)
+      clearInterval(this.ticker)
     },
     processTailLoop(){
       processTail(this.tail).then(res => {
@@ -339,6 +337,9 @@ export default {
       this.tail = {id:0,start:0,context:''}
       clearInterval(this.tailTicker)
       console.log('tailLogCancel');
+      this.ticker = setInterval(() => {
+        this.loadProcess()
+      }, 2000)
     },
     onPageChange(page){
       this.pageNo = page
@@ -357,6 +358,7 @@ export default {
     deleteProcess (id) {
       processDelete({ id: id }).then(() => {
         this.loadProcess()
+        this.loadTags()
       })
     },
     openEdit (item, option) {
@@ -373,6 +375,7 @@ export default {
       })
     },
     editSuccess(){
+      this.loadTags()
       this.loadProcess()
       this.editVisible = false
       this.editMdl = null
@@ -394,7 +397,7 @@ export default {
       })
     },
     tagStatusColor(status){
-      const m = ['#E0E0E0','#01B468','#1ABB9C','#FF7575','#D0D0D0','#D0D0D0']
+      const m = ['#E0E0E0','#01B468','#1ABB9C','#FF7575','#BEBEBE','#D0D0D0']
       const i = this.tags.status.indexOf(status)
       return i !== -1 ? m[i]: m[0]
     },
@@ -403,14 +406,11 @@ export default {
         return 'red'
       } else if (percent >= 50) {
         return '#EAC100'
+      }else{
+        return '#3f8600'
       }
     },
-    processBell (id ,b) {
-      processBell({id:id,bell:b}).then(()=>{
-        this.loadProcess()
-        this.$message.info('操作成功')
-      })
-    }
+    
   }
 }
 </script>

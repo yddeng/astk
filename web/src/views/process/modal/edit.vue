@@ -108,7 +108,7 @@
               <a-icon type="question-circle-o" />
             </a-tooltip>
           </span>
-          <template v-for="label in this.labels">
+          <template v-for="label in this.allLabels">
             <a-tooltip v-if="label.length > 10" :key="label" :title="label">
               <a-checkable-tag  
               :key="label" 
@@ -217,6 +217,7 @@ export default {
         labels: []
       },
       title:'',
+      allLabels:[],
       labelInputVisible: false,
       labelInputValue: '',
     }
@@ -253,9 +254,18 @@ export default {
           this.title = '新增配置'
         }
       }
+    },
+    visible(nv){
+      if (nv){
+        this.onVisible()
+      }
     }
   },
   methods: {
+    onVisible(){
+      // console.log("visible");
+      this.allLabels = this.labels
+    },
     removeCfg (item) {
       console.log(item)
       const index = this.form.config.indexOf(item)
@@ -273,6 +283,7 @@ export default {
     handleLableChange(label, checked){
       const nextSelectedTags = checked ? [...this.form.labels, label] : this.form.labels.filter(t => t !== label);
       this.form.labels = nextSelectedTags;
+      console.log(this.allLabels,this.form.labels);
     },
     showLabelInput(){
       this.labelInputVisible = true
@@ -284,9 +295,9 @@ export default {
       if (this.labelInputValue && this.form.labels.indexOf(this.labelInputValue) === -1) {
         console.log(this.labelInputValue)
         this.form.labels = [...this.form.labels, this.labelInputValue]
-        this.labels = [...this.labels, this.labelInputValue]
+        this.allLabels = [...this.allLabels, this.labelInputValue]
       }
-      console.log(this.form.labels)
+      console.log(this.allLabels,this.form.labels)
       this.labelInputVisible = false
       this.labelInputValue = ''
     },

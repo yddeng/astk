@@ -1,8 +1,7 @@
 <template>
   <div>
-    
+  
     <a-card :bordered="false">
-
       <a-row :style="{ marginBottom: '20px' }" justify="space-between" type="flex">
         <a-col>
           <a-button type="primary" @click="openEdit()" icon="plus">新建</a-button>
@@ -116,7 +115,7 @@ export default {
     openEdit(){
       this.editVisible = true
     },
-     editSuccess(){
+    editSuccess(){
       this.$refs.table.refresh()
       this.editVisible = false
     },
@@ -129,7 +128,7 @@ const columns = [
   {title: '类型', dataIndex: 'type',width:'100px'},
   {title: '节点', dataIndex: 'node',width:'200px'},
   {title: '描述', dataIndex: 'desc',width:'400px',
-    customRender: (text) => text.length > 20 ? text.slice(0, 30) + '...' :text,},
+    customRender: (text) => text.length > 20 ? text.slice(0, 20) + '...' :text,},
   {title: '转发端口', dataIndex: 'remotePort', align: 'center',width:'100px'},
   {title: '目标IP',dataIndex: 'localIp',width:'200px'},
   {title: '目标端口',dataIndex: 'localPort', align: 'center',width:'100px'},

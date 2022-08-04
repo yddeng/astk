@@ -1,33 +1,6 @@
 {
-  "genId": 19,
+  "genId": 21,
   "process": {
-    "1": {
-      "id": 1,
-      "name": "test",
-      "dir": "",
-      "config": [],
-      "command": "test",
-      "labels": [
-        "label1"
-      ],
-      "node": "astke",
-      "user": "admin",
-      "createAt": 1658281370,
-      "state": {
-        "status": "exited",
-        "pid": 12280,
-        "timestamp": 1658730654,
-        "exitMsg": "",
-        "autoStartTimes": 0,
-        "cpu": 0,
-        "mem": 0
-      },
-      "bell": false,
-      "priority": 10,
-      "startSecs": 0,
-      "stopWaitSecs": 0,
-      "autoStartTimes": 0
-    },
     "15": {
       "id": 15,
       "name": "dir_1.1.1_dev_123",
@@ -42,14 +15,13 @@
       "createAt": 1658302049,
       "state": {
         "status": "exited",
-        "pid": 24297,
-        "timestamp": 1658455879,
+        "pid": 5619,
+        "timestamp": 1659597364,
         "exitMsg": "panic: open .astk/dir_1.1.1_dev_123/config.toml: no such file or directory\n\ngoroutine 1 [running]:\ninitialthree/vendor/github.com/hqpko/hutils.Must(...)\n\t/Users/yidongdeng/go/src/initialthree/vendor/github.com/hqpko/hutils/must.go:5\nmain.main()\n\t/Users/yidongdeng/go/src/initialthree/node/node_dir/main/node_dir.go:28 +0x4ab\n",
         "autoStartTimes": 0,
         "cpu": 0,
         "mem": 0
       },
-      "bell": false,
       "priority": 10,
       "startSecs": 0,
       "stopWaitSecs": 0,
@@ -67,7 +39,7 @@
       ],
       "command": "./bin/node_game {{path}}/config.toml Game 0 initialthree pprof@0.0.0.0:41234",
       "labels": [
-        "node_game"
+        "test"
       ],
       "node": "astke",
       "user": "admin",
@@ -81,7 +53,58 @@
         "cpu": 0,
         "mem": 0
       },
-      "bell": false,
+      "priority": 10,
+      "startSecs": 3,
+      "stopWaitSecs": 10,
+      "autoStartTimes": 3
+    },
+    "20": {
+      "id": 20,
+      "name": "center",
+      "dir": "/Users/yidongdeng/workspace/initialthree",
+      "config": [],
+      "command": "./bin/center localhost:8011 initialthree",
+      "labels": [
+        "center"
+      ],
+      "node": "astke",
+      "user": "admin",
+      "createAt": 1659584279,
+      "state": {
+        "status": "stopped",
+        "pid": 0,
+        "timestamp": 1659599358,
+        "exitMsg": "",
+        "autoStartTimes": 0,
+        "cpu": 0,
+        "mem": 0
+      },
+      "priority": 10,
+      "startSecs": 3,
+      "stopWaitSecs": 10,
+      "autoStartTimes": 3
+    },
+    "21": {
+      "id": 21,
+      "name": "test",
+      "dir": "",
+      "config": [],
+      "command": "sss",
+      "labels": [
+        "test"
+      ],
+      "node": "astke",
+      "user": "admin",
+      "createAt": 1659597710,
+      "state": {
+        "status": "stopped",
+        "pid": 0,
+        "timestamp": 0,
+        "exitMsg": "",
+        "autoStartTimes": 0,
+        "cpu": 0,
+        "mem": 0
+      },
       "priority": 10,
       "startSecs": 3,
       "stopWaitSecs": 10,
@@ -94,6 +117,7 @@
     "disk": 0,
     "interval": 10,
     "continuityInterval": 3000,
+    "opened": false,
     "notify": {
       "notifyType": "callback",
       "notifyServer": "http://127.0.0.1:24563/hook"

@@ -45,7 +45,6 @@ type Process struct {
 	State ProcessState `json:"state"`
 
 	// 检测器
-	Bell         bool          `json:"bell"`
 	MonitorState *MonitorState `json:"-"`
 
 	// 子进程启动关闭优先级，优先级低的，最先启动，关闭的时候最后关闭
@@ -269,7 +268,7 @@ func (p *Process) start(node *Node, callback func(code string, err error)) error
 }
 
 func (p *Process) monitor(cpu, mem float64) {
-	if p.Bell {
+	if processMgr.Monitor.Opened {
 		if p.MonitorState == nil {
 			p.MonitorState = new(MonitorState)
 		}

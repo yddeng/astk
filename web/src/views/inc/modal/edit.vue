@@ -7,7 +7,6 @@
     :visible="visible"
     @ok="submitForm"
     @cancel="cancel"
-    :afterClose="afterClose"
   >
       <a-form-model
         ref="incEdit"
@@ -75,7 +74,24 @@ export default {
       },
     }
   },
+  watch:{
+    visible(nv){
+      if (nv){
+        this.onVisible()
+      }
+    }
+  },
   methods: {
+    onVisible(){
+      this.form = {
+        type: 'tcp',
+        remotePort: '',
+        desc:'',
+        localIp: '',
+        localPort: '',
+        node: '',
+      }
+    },
     submitForm () {
       console.log(this.form)
       if (this.form.remotePort ==='' ||
@@ -91,16 +107,6 @@ export default {
     },
     cancel(){
       this.$emit('cancel')
-    },
-    afterClose(){
-      this.form = {
-        type: 'tcp',
-        remotePort: '',
-        desc:'',
-        localIp: '',
-        localPort: '',
-        node: '',
-      }
     }
   }
 }

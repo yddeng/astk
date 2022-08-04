@@ -28,6 +28,7 @@ type Monitor struct {
 	// 为了防止持续报警轰炸
 	AlertInterval int64 `json:"continuityInterval"`
 
+	Opened bool    `json:"opened"`
 	Notify *Notify `json:"notify"` // 报警器
 }
 

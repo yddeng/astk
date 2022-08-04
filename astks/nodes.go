@@ -26,7 +26,6 @@ type Node struct {
 	nodeState *protocol.NodeState
 
 	// 检测器
-	Bell         bool          `json:"bell"`
 	MonitorState *MonitorState `json:"-"`
 }
 
@@ -62,7 +61,7 @@ func (c *Center) onLogin(replier *drpc.Replier, req interface{}) {
 	name := msg.GetName()
 	client := nodeMgr.Nodes[name]
 	if client == nil {
-		client = &Node{Name: name, Bell: true}
+		client = &Node{Name: name}
 		nodeMgr.Nodes[name] = client
 	}
 	if client.session != nil {
@@ -92,7 +91,7 @@ func (n *Node) onNodeState(msg *protocol.NodeState) {
 }
 
 func (n *Node) monitor(cpu, mem, disk float64) {
-	if n.Bell {
+	if nodeMgr.Monitor.Opened {
 		if n.MonitorState == nil {
 			n.MonitorState = new(MonitorState)
 		}

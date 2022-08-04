@@ -1,7 +1,7 @@
 <template>
   <page-header-wrapper
     :breadcrumb="{}"
-    title="执行命令"
+    title="命令日志"
     :content="'( ' + cmdName + ' )'"
     @back="() => $router.go(-1)"
   >

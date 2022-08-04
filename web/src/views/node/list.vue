@@ -84,7 +84,6 @@
       />
       </a-col></a-row>
     </div>
-
   </div>
 </template>
 
@@ -117,7 +116,7 @@ export default {
       const args = { pageNo: this.pageNo, pageSize: this.pageSize }
       nodeList(args)
         .then(res => {
-           console.log(res);
+          // console.log(res);
           this.totalCount = res.totalCount
           this.nodes = res.dataList
         })
