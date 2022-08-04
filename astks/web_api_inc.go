@@ -49,8 +49,17 @@ func (*incHandler) Create(wait *WaitConn, user string, req struct {
 	Node       string  `json:"node"`       // 被代理的节点
 	LocalIP    string  `json:"localIp"`    // 节点被代理地址
 	LocalPort  string  `json:"localPort"`  // 节点被代理端口
+	Desc       string  `json:"desc"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
+	defer func() { wait.Done() }()
+
+	switch req.Type {
+	case IncTypeTCP, IncTypeHttp, IncTypeHttps:
+	default:
+		wait.SetResult("类型错误", nil)
+		return
+	}
 
 	inc := &Inc{
 		Type:       req.Type,
@@ -58,6 +67,7 @@ func (*incHandler) Create(wait *WaitConn, user string, req struct {
 		Node:       req.Node,
 		LocalIP:    req.LocalIP,
 		LocalPort:  req.LocalPort,
+		Desc:       req.Desc,
 	}
 
 	id := token2.GenToken(22)
@@ -72,7 +82,6 @@ func (*incHandler) Create(wait *WaitConn, user string, req struct {
 	inc.ID = id
 	incMgr.IncMap[id] = inc
 	saveStore(snIncMgr)
-	wait.Done()
 }
 
 func (*incHandler) Delete(wait *WaitConn, user string, req struct {

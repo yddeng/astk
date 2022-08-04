@@ -5,7 +5,7 @@
         <a-card class="header-card" :bordered="false">
           <a-row>
             <a-col :span="18">
-              <span class="header-card-value">{{ onlineNodeCnt }}/{{ nodes.length }}</span><br/>
+              <span class="header-card-value">{{ onlineNode.length }}/{{ allNode.length }}</span><br/>
               <span class="header-card-title">在线/总数</span><br/>
               <span class="header-card-desc">已注册的节点数</span>
             </a-col>
@@ -122,7 +122,7 @@
 import moment from 'moment'
 import STable from '@/components/Table'
 import { cmdList, cmdDelete } from '@/api/command'
-import { nodeList } from '@/api/node'
+import { nodeStatus } from '@/api/node'
 import EditMod from './modal/EditMod'
 
 export default {
@@ -154,30 +154,21 @@ export default {
       mdl: null,
       copyTitle: '复制',
 
-      nodes: [],
-      onlineNodeCnt: 0,
+      allNode: [],
+      onlineNode: [],
       cmdCount: 0,
       cmdSuccess: 0,
       cmdFailed: 0
     }
   },
   mounted () {
-    this.getNodeList()
+    this.loadNodeStatus()
   },
   methods: {
-    getNodeList () {
-      this.onlineNodeCnt = 0
-      const args = { pageNo: 1, pageSize: 1000 }
-      nodeList(args)
-        .then(res => {
-          console.log(res);
-          this.nodes = res.dataList
-          for (const idx in res.dataList) {
-            const v = res.dataList[idx]
-            if (v.online) {
-              this.onlineNodeCnt += 1
-            }
-          }
+    loadNodeStatus () {
+      nodeStatus().then(res => {
+          this.allNode = res.all
+          this.onlineNode = res.online
         })
     },
     handleOk () {

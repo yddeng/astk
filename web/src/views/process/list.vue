@@ -186,7 +186,7 @@
 <script>
 import { tags, processList, processDelete, processStart, processStop,
 processBatchStart, processBatchStop,processTail,processBell } from '@/api/process'
-import { nodeNames } from '@/api/node'
+import { nodeStatus } from '@/api/node'
 import moment from 'moment'
 import Log from './modal/log'
 import Edit from './modal/edit'
@@ -360,8 +360,8 @@ export default {
       })
     },
     openEdit (item, option) {
-      nodeNames().then(res => {
-        this.editNodeNames = res
+      nodeStatus().then(res => {
+        this.editNodeNames = res.all
         if (option === 'edit' || option === 'copy') {
           this.editMdl = { ...item }
         }else{

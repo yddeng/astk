@@ -8,9 +8,9 @@ export function nodeList (parameter) {
   })
 }
 
-export function nodeNames (parameter) {
+export function nodeStatus (parameter) {
   return request({
-    url: 'node/names',
+    url: 'node/status',
     method: 'post',
     data: parameter
   })

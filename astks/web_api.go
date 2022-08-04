@@ -216,7 +216,7 @@ func initHandler(app *gin.Engine) {
 	nodeHandle := new(nodeHandler)
 	nodeGroup := app.Group("/node")
 	nodeGroup.POST("/list", warpHandle(nodeHandle.List))
-	nodeGroup.POST("/names", warpHandle(nodeHandle.Names))
+	nodeGroup.POST("/status", warpHandle(nodeHandle.Status))
 	nodeGroup.POST("/remove", warpHandle(nodeHandle.Remove))
 	nodeGroup.POST("/bell", warpHandle(nodeHandle.Bell))
 

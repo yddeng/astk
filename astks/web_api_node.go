@@ -52,14 +52,24 @@ func (*nodeHandler) List(wait *WaitConn, user string, req struct {
 	wait.Done()
 }
 
-func (*nodeHandler) Names(wait *WaitConn, user string) {
+func (*nodeHandler) Status(wait *WaitConn, user string) {
 	log.Printf("%s by(%s)\n", wait.route, user)
-
-	s := make([]string, 0, len(nodeMgr.Nodes))
-	for _, n := range nodeMgr.Nodes {
-		s = append(s, n.Name)
+	type result struct {
+		All    []string `json:"all"`
+		Online []string `json:"online"`
 	}
-	wait.SetResult("", s)
+
+	ret := &result{
+		All:    make([]string, 0, len(nodeMgr.Nodes)),
+		Online: make([]string, 0, len(nodeMgr.Nodes)),
+	}
+	for _, n := range nodeMgr.Nodes {
+		ret.All = append(ret.All, n.Name)
+		if n.Online() {
+			ret.Online = append(ret.Online, n.Name)
+		}
+	}
+	wait.SetResult("", ret)
 	wait.Done()
 }
 

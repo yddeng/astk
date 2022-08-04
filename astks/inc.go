@@ -1,6 +1,7 @@
 package astks
 
 import (
+	"fmt"
 	"github.com/yddeng/astk/pkg/incIo"
 	"github.com/yddeng/astk/pkg/protocol"
 	"github.com/yddeng/dnet/drpc"
@@ -24,6 +25,7 @@ type Inc struct {
 	Node       string  `json:"node"`       // 被代理的节点
 	LocalIP    string  `json:"localIp"`    // 节点被代理地址
 	LocalPort  string  `json:"localPort"`  // 节点被代理端口
+	Desc       string  `json:"desc"`
 
 	listener net.Listener
 	channels map[int32]*incIo.Channel
@@ -50,7 +52,7 @@ func (this *Inc) startListener() error {
 	case IncTypeHttp, IncTypeHttps, IncTypeTCP:
 		return this.startTcpListener()
 	default:
-		return nil
+		return fmt.Errorf("类型未实现")
 	}
 }
 

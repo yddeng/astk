@@ -54,7 +54,7 @@
 <script>
 import STable from '@/components/Table'
 import { incCreate, incList,incDelete,incOpened } from '@/api/inc'
-import { nodeNames } from '@/api/node'
+import { nodeStatus } from '@/api/node'
 import Edit from './modal/edit'
 
 export default {
@@ -84,13 +84,13 @@ export default {
     }
   },
   mounted () {
-    this.getNodeList()
+    this.loadNodeStatus()
   },
   methods: {
-    getNodeList () {
-      nodeNames()
+    loadNodeStatus () {
+      nodeStatus()
         .then(res => {
-          this.nodeNames = res
+          this.nodeNames = res.all
         })
     },
     incCreate (record) {
@@ -126,13 +126,15 @@ export default {
   }
 }
 const columns = [
-  {title: '节点', dataIndex: 'node'},
-  {title: '类型', dataIndex: 'type'},
-  {title: '转发端口', dataIndex: 'remotePort'},
-  {title: '目标IP',dataIndex: 'localIp'},
-  {title: '目标端口',dataIndex: 'localPort'},
-  {title: '链接数',dataIndex: 'channel',},
-  {title: '状态',scopedSlots: { customRender: 'status' }},
+  {title: '类型', dataIndex: 'type',width:'100px'},
+  {title: '节点', dataIndex: 'node',width:'200px'},
+  {title: '描述', dataIndex: 'desc',width:'400px',
+    customRender: (text) => text.length > 20 ? text.slice(0, 30) + '...' :text,},
+  {title: '转发端口', dataIndex: 'remotePort', align: 'center',width:'100px'},
+  {title: '目标IP',dataIndex: 'localIp',width:'200px'},
+  {title: '目标端口',dataIndex: 'localPort', align: 'center',width:'100px'},
+  {title: '链接数',dataIndex: 'channel', align: 'center',width:'100px'},
+  {title: '状态',scopedSlots: { customRender: 'status' },width:'100px'},
   {title: '操作',scopedSlots: { customRender: 'action' }}
 ]
 </script>

@@ -24,6 +24,9 @@
         <a-form-model-item label="转发端口" >
           <a-input style="width: 80px" v-model="form.remotePort" />
         </a-form-model-item>
+        <a-form-model-item label="描述" >
+          <a-input style="width: 400px" v-model="form.desc" />
+        </a-form-model-item>
         <a-form-model-item label="目标地址">
           <a-input-group compact>
             <a-input style="width: 200px" v-model="form.localIp" />
@@ -65,6 +68,7 @@ export default {
       form: {
         type: 'tcp',
         remotePort: '',
+        desc:'',
         localIp: '',
         localPort: '',
         node: '',
@@ -92,6 +96,7 @@ export default {
       this.form = {
         type: 'tcp',
         remotePort: '',
+        desc:'',
         localIp: '',
         localPort: '',
         node: '',
