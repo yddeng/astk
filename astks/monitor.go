@@ -28,8 +28,8 @@ type Monitor struct {
 	// 为了防止持续报警轰炸
 	AlertInterval int64 `json:"continuityInterval"`
 
-	Opened bool    `json:"opened"`
-	Notify *Notify `json:"notify"` // 报警器
+	Opened bool   `json:"opened"`
+	Notify Notify `json:"notify"` // 报警器
 }
 
 type MonitorState struct {
@@ -68,7 +68,7 @@ func (this *Monitor) Alert(state *MonitorState, cpu, mem, disk float64, name fun
 			if nowUnix-state.AlertTime >= this.AlertInterval {
 				//
 				state.AlertTime = nowUnix
-				if this.Notify != nil && this.Notify.NotifyServer != "" {
+				if this.Notify.NotifyServer != "" {
 					msg := fmt.Sprintf(alertMessage, strings.Join(info, ";"), name(), now.String())
 					if err := this.Notify.Push(msg); err != nil {
 						log.Println(err)

@@ -35,12 +35,6 @@ export const asyncRouterMap = [
     redirect: '/node',
     children:[
       {
-        name:'dashboard',
-        path: '/dashboard',
-        meta:{title:'控制面板',icon:'dashboard'},
-        component: () => import('@/views/dashboard/index')
-      },
-      {
         name:'node',
         path: '/node',
         meta:{title:'节点状态',icon:'cloud-server'},

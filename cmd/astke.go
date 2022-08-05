@@ -22,8 +22,6 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	log.Println("astke")
-
 	var err error
 	var cfg astke.Config
 	if err = util.DecodeJsonFromFile(&cfg, *file); err != nil {

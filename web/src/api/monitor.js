@@ -9,17 +9,17 @@ export function monitorInfo (parameter) {
   })
 }
 
-export function monitorRule (parameter) {
+export function monitorUpdate (parameter) {
   return request({
-    url: "monitor/rule",
+    url: "monitor/update",
     method: 'post',
     data: parameter
   })
 }
 
-export function monitorNotify (parameter) {
+export function monitorOpened (parameter) {
   return request({
-    url: "monitor/notify",
+    url: "monitor/opened",
     method: 'post',
     data: parameter
   })

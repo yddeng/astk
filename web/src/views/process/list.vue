@@ -1,6 +1,8 @@
 <template>
   <div>
     <a-card :bordered="false" size="small" style="marginBottom:10px;">
+      <a-row :gutter="16" justify="space-between" type="flex">
+      <a-col>
       <div style="marginLeft:6px;marginBottom:10px;font-size: 16px;">
         <span style="marginRight:12px">节点:</span>
         <template v-for="tag in tags.nodes">
@@ -40,6 +42,9 @@
           </a-checkable-tag>
         </template>
       </div>
+      </a-col>
+      <a-col style="margin-right: 10px;"><a-button icon="bell" size="small" @click="openDrawer">监控</a-button></a-col>
+      </a-row>
     </a-card>
     <a-card :bordered="false" style="marginBottom:10px;" size="small">
       <a-row justify="space-between" type="flex">
@@ -65,14 +70,7 @@
         </a-col>
       </a-row>
     </a-card>
-    <!-- <div style="marginBottom:10px;">
-     <a-row justify="space-between" type="flex">
-        <a-col>按ID排序</a-col>
-        <a-col style="marginRight:10px;">
-          <a-radio-group :options="['启动的时间','CPU','Mem']" />
-        </a-col>
-        </a-row>
-    </div>  -->
+
     <a-list
       :grid="{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl:3, xxl :4 }"
       :data-source="data.process"
@@ -179,12 +177,52 @@
       @success="editSuccess"
       @cancel="editCancel"
     />
+
+    <a-drawer
+      title="监控"
+      placement="right"
+      width="300"
+      :visible="monitorVisible"
+      @close="()=>{monitorVisible = false}"
+    >
+      CPU:<span style="color:darkgoldenrod"> {{monitorInfo.cpu}} </span>
+      <a-slider :min="0" :max="100" v-model="monitorInfo.cpu" @afterChange="monitorUpdate"/>
+      Mem:<span style="color:darkgoldenrod"> {{monitorInfo.mem}} </span>
+      <a-slider :min="0" :max="100" v-model="monitorInfo.mem" @afterChange="monitorUpdate"/>
+      触发间隔:<span style="color:darkgoldenrod"> {{monitorInfo.interval}} </span>秒
+      <a-slider :min="2" :max="20" 
+      v-model="monitorInfo.interval" 
+      :tip-formatter="v => {return `${v}s`}"  
+      @afterChange="monitorUpdate"/>
+      报警间隔:<span style="color:darkgoldenrod"> {{monitorInfo.continuityInterval/60}} </span>分
+      <a-slider :min="600" :max="7200" :step="600" 
+      v-model="monitorInfo.continuityInterval" 
+      :tip-formatter="v => {return `${v/60}m`}"
+      @afterChange="monitorUpdate"/><br/>
+      通知方式<br/>
+      <a-select v-model="monitorInfo.notify.notifyType" style="min-width:120px">
+        <a-select-option value="weixin">企业微信</a-select-option>
+        <a-select-option value="callback">自定义</a-select-option>
+      </a-select><br/>
+      <a-input 
+        v-model="monitorInfo.notify.notifyServer" 
+        placeholder="http://example.com/posttreceive"/>
+      <br/><br/>
+      <a-switch 
+        checked-children="开启" 
+        un-checked-children="关闭" 
+        v-model="monitorInfo.opened" 
+        :loading="monitorOpenedLoading"
+        @click="monitorOpened"/>
+    </a-drawer>
+
   </div>
 </template>
 <script>
 import { tags, processList, processDelete, processStart, processStop,
 processBatchStart, processBatchStop,processTail } from '@/api/process'
 import { nodeStatus } from '@/api/node'
+import { monitorInfo, monitorUpdate } from '@/api/monitor'
 import moment from 'moment'
 import Log from './modal/log'
 import Edit from './modal/edit'
@@ -229,6 +267,22 @@ export default {
 
       pageNo:1,
       pageSize:8,
+
+      monitorVisible:false,
+      monitorType:'process',
+      monitorOpenedLoading:false,
+      monitorInfo:{
+        cpu:90,
+        mem:90,
+        disk:0,
+        interval:10,
+        continuityInterval:600,
+        opened:false,
+        notify:{
+          notifyType:'',
+          notifyServer:''
+        }
+      }
     }
   },
   mounted () {
@@ -256,7 +310,6 @@ export default {
     }
   },
   destroyed () {
-    console.log('destroyed')
     clearInterval(this.ticker)
     clearInterval(this.tailTicker)
   },
@@ -330,14 +383,14 @@ export default {
         if (res.context !==''){
           this.tail.context += res.context
         }
-        console.log(res,this.tail)
+        //console.log(res,this.tail)
       })
     },
     tailLogCancel(){
       this.tailVisible = false
       this.tail = {id:0,start:0,context:''}
       clearInterval(this.tailTicker)
-      console.log('tailLogCancel');
+      //console.log('tailLogCancel');
       this.ticker = setInterval(() => {
         this.loadProcess()
       }, 2000)
@@ -411,7 +464,40 @@ export default {
         return '#3f8600'
       }
     },
-    
+    openDrawer(){
+      this.loadMonitor()
+      this.monitorVisible = true
+    },
+    loadMonitor(){
+      monitorInfo({type:this.monitorType})
+      .then(res => {
+        //console.log(res);
+        this.monitorInfo = res
+      })
+      .finally(() => {
+        this.monitorOpenedLoading = false
+      })
+    },
+    monitorUpdate(){
+      const args = {
+        type:this.monitorType,
+        monitor:this.monitorInfo,
+      }
+      //console.log(args);
+      monitorUpdate(args).then(()=>{
+        this.loadMonitor()
+      })
+    },
+    monitorOpened(opened){
+      if (opened && (this.monitorInfo.notify.notifyType ==='' || 
+        this.monitorInfo.notify.notifyServer ==='')){
+        this.$message.error('通知类型及url需填写完整')
+        this.monitorInfo.opened = false
+        return
+      }
+      this.monitorOpenedLoading = true
+      this.monitorUpdate()
+    },
   }
 }
 </script>

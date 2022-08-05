@@ -224,7 +224,9 @@ func Stop() {
 	stopCh := make(chan struct{})
 	er.Submit(func() {
 		close(er.die)
-		er.session.Close(fmt.Errorf("stop"))
+		if er.session != nil {
+			er.session.Close(fmt.Errorf("stop"))
+		}
 		saveProcess()
 		stopCh <- struct{}{}
 	})

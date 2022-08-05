@@ -245,7 +245,6 @@ func initHandler(app *gin.Engine) {
 	monitorGroup := app.Group("/monitor")
 	monitorGroup.POST("/info", warpHandle(monitorHandle.Info))
 	monitorGroup.POST("/update", warpHandle(monitorHandle.Update))
-	monitorGroup.POST("/opened", warpHandle(monitorHandle.Opened))
 
 	gitHookHandle := new(githookHandler)
 	gitHookGroup := app.Group("/githook")
