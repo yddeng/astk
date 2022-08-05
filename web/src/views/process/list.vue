@@ -88,15 +88,16 @@
               {{item.name.slice(0,1)}}
               </a-avatar> -->
               <template slot="description"> 
-                <a-popover v-if="item.state.status==='exited'" placement="topRight" trigger="click">
-                  <span slot="content" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
-                  <a-tag :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
-                </a-popover>
-                <a-tag v-else :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
-                <span v-if="item.state.status==='running'">
-                  Pid:{{ item.state.pid }}, Age: {{ item.state.timestamp | showAge }}
-                </span> 
-                <br/><br/>
+                <div style="margin-bottom: 10px;">
+                  <a-popover v-if="item.state.status==='exited'" placement="topRight" trigger="click">
+                    <span slot="content" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
+                    <a-tag :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
+                  </a-popover>
+                  <a-tag v-else :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
+                  <span v-if="item.state.status==='running'">
+                    Pid:{{ item.state.pid }}, Age: {{ item.state.timestamp | showAge }}
+                  </span> 
+                </div>
                 <a-row type="flex" justify="space-around">
                   <a-col :span="12">
                   <a-statistic
