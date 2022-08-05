@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"strings"
@@ -17,7 +18,7 @@ type ProcessConfig struct {
 
 type ProcessState struct {
 	// 状态
-	Status string `json:"status"`
+	Status types.ProcStatus `json:"status"`
 	// 运行时Pid， Running、Stopping 时可用，启动时重置
 	Pid int32 `json:"pid"`
 	// 时间戳 秒， 启动、停止时设置
@@ -102,8 +103,8 @@ func (mgr *ProcessMgr) refreshLabels() {
 func processTick() {
 	rpcReq := map[string]*protocol.ProcessStateReq{}
 	for _, p := range processMgr.Process {
-		if !(p.State.Status == common.StateStopped ||
-			p.State.Status == common.StateExited) {
+		if !(p.State.Status == types.ProcStatusStopped ||
+			p.State.Status == types.ProcStatusExited) {
 			req, ok := rpcReq[p.Node]
 			if !ok {
 				req = &protocol.ProcessStateReq{
@@ -125,8 +126,8 @@ func processTick() {
 				if !ok {
 					continue
 				}
-				if p.State.Status != common.StateUnknown {
-					p.State.Status = common.StateUnknown
+				if p.State.Status != types.ProcStatusUnknown {
+					p.State.Status = types.ProcStatusUnknown
 					change = true
 				}
 			}
@@ -151,50 +152,51 @@ func processTick() {
 				p.State.Pid = state.Pid
 				p.State.Mem = state.GetMem()
 				p.State.Cpu = state.GetCpu()
+				status := types.ProcStatus(state.GetStatus())
 				switch p.State.Status {
-				case common.StateUnknown:
-					p.State.Status = state.GetState()
-					switch state.GetState() {
-					case common.StateRunning:
-					case common.StateStopped:
-					case common.StateExited:
+				case types.ProcStatusUnknown:
+					p.State.Status = status
+					switch status {
+					case types.ProcStatusRunning:
+					case types.ProcStatusStopped:
+					case types.ProcStatusExited:
 						p.State.AutoStartTimes = p.AutoStartTimes // 未知状态不重启
 						p.State.ExitMsg = state.GetExitMsg()
 					}
 					change = true
-				case common.StateStarting:
-					switch state.GetState() {
-					case common.StateRunning:
+				case types.ProcStatusStarting:
+					switch status {
+					case types.ProcStatusRunning:
 						if NowUnix() >= p.State.Timestamp+p.StartSecs {
 							// 启动时间
-							p.State.Status = common.StateRunning
+							p.State.Status = types.ProcStatusRunning
 							change = true
 						}
-					case common.StateStopped:
-						p.State.Status = common.StateStopped
+					case types.ProcStatusStopped:
+						p.State.Status = types.ProcStatusStopped
 						change = true
-					case common.StateExited:
-						p.State.Status = common.StateExited
+					case types.ProcStatusExited:
+						p.State.Status = types.ProcStatusExited
 						p.State.AutoStartTimes = p.AutoStartTimes // 启动阶段不重启
 						p.State.ExitMsg = state.GetExitMsg()
 						change = true
 					}
-				case common.StateRunning:
-					switch state.GetState() {
-					case common.StateRunning:
+				case types.ProcStatusRunning:
+					switch status {
+					case types.ProcStatusRunning:
 						// 仅运行状态监控报警
 						p.monitor(state.GetCpu(), state.GetMem())
-					case common.StateStopped:
-						p.State.Status = common.StateStopped
+					case types.ProcStatusStopped:
+						p.State.Status = types.ProcStatusStopped
 						change = true
-					case common.StateExited:
-						p.State.Status = common.StateExited
+					case types.ProcStatusExited:
+						p.State.Status = types.ProcStatusExited
 						p.State.ExitMsg = state.GetExitMsg()
 						change = true
 					}
-				case common.StateStopping:
-					switch state.GetState() {
-					case common.StateRunning:
+				case types.ProcStatusStopping:
+					switch status {
+					case types.ProcStatusRunning:
 						if NowUnix() >= p.State.Timestamp+p.StopWaitSecs {
 							// 停止时间超时 ，强行停止
 							_ = center.Go(node, &protocol.ProcessSignalReq{
@@ -202,11 +204,11 @@ func processTick() {
 								Signal: int32(syscall.SIGKILL),
 							}, drpc.DefaultRPCTimeout, func(i interface{}, e error) {})
 						}
-					case common.StateStopped:
-						p.State.Status = common.StateStopped
+					case types.ProcStatusStopped:
+						p.State.Status = types.ProcStatusStopped
 						change = true
-					case common.StateExited:
-						p.State.Status = common.StateExited
+					case types.ProcStatusExited:
+						p.State.Status = types.ProcStatusExited
 						p.State.AutoStartTimes = p.AutoStartTimes // 停止阶段不重启
 						p.State.ExitMsg = state.GetExitMsg()
 						change = true
@@ -222,7 +224,7 @@ func processTick() {
 
 func processAutoStart() {
 	for _, p := range processMgr.Process {
-		if p.State.Status == common.StateExited &&
+		if p.State.Status == types.ProcStatusExited &&
 			p.State.AutoStartTimes < p.AutoStartTimes {
 
 			node, ok := nodeMgr.Nodes[p.Node]
@@ -233,7 +235,7 @@ func processAutoStart() {
 			log.Printf("process %d auto start times %d\n", p.ID, p.State.AutoStartTimes)
 			if err := p.start(node, func(code string, err error) {}); err == nil {
 				p.State.AutoStartTimes += 1
-				p.State.Status = common.StateStarting
+				p.State.Status = types.ProcStatusStarting
 				p.State.Timestamp = NowUnix()
 				p.State.ExitMsg = ""
 				saveStore(snProcessMgr)

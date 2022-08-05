@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	psProc "github.com/shirou/gopsutil/process"
-	"github.com/yddeng/astk/pkg/common"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/astk/pkg/util"
 	"io/ioutil"
 	"log"
@@ -27,18 +27,18 @@ type Daemon struct {
 	// 超过这个时间会向该子进程发送一个强制kill的信号。
 	StopWaitSecs int
 	// 运行状态
-	State string
+	Status string
 	// Cmd
 	Cmd *exec.Cmd
 }
 
 type Process struct {
-	Pid        int32  `json:"pid"`
-	Stderr     string `json:"stderr"`
-	ID         int32  `json:"id"`
-	Name       string `json:"name"`
-	State      string `json:"state"`
-	CreateTime int64  `json:"createTime"`
+	Pid        int32            `json:"pid"`
+	Stderr     string           `json:"stderr"`
+	ID         int32            `json:"id"`
+	Name       string           `json:"name"`
+	Status     types.ProcStatus `json:"status"`
+	CreateTime int64            `json:"createTime"`
 
 	tailLog *tailLog
 	process *psProc.Process
@@ -55,18 +55,18 @@ func (this *Process) waitCmd(cmd *exec.Cmd, callback func(process *Process)) {
 				// !success
 				if state.ProcessState.Exited() {
 					// exit
-					this.State = common.StateExited
+					this.Status = types.ProcStatusExited
 				} else {
 					// signal 人为操作，视为正常停机
-					this.State = common.StateStopped
+					this.Status = types.ProcStatusStopped
 				}
 			} else {
 				// 异常退出
-				this.State = common.StateExited
+				this.Status = types.ProcStatusExited
 			}
 		} else {
 			// err == nil && success
-			this.State = common.StateStopped
+			this.Status = types.ProcStatusStopped
 		}
 		this.mu.Unlock()
 		callback(this)
@@ -79,19 +79,19 @@ func (this *Process) waitChild(proc *os.Process, callback func(process *Process)
 		this.mu.Lock()
 		if err != nil {
 			// 异常退出
-			this.State = common.StateExited
+			this.Status = types.ProcStatusExited
 		} else {
 			if !state.Success() {
 				if state.Exited() {
 					// exit
-					this.State = common.StateExited
+					this.Status = types.ProcStatusExited
 				} else {
 					// signal 人为操作，视为正常停机
-					this.State = common.StateStopped
+					this.Status = types.ProcStatusStopped
 				}
 			} else {
 				// success code=0
-				this.State = common.StateStopped
+				this.Status = types.ProcStatusStopped
 			}
 
 		}
@@ -110,14 +110,14 @@ func (this *Process) waitNoChild(callback func(process *Process)) {
 					data, err := ioutil.ReadFile(this.Stderr)
 					this.mu.Lock()
 					if err == nil && len(data) != 0 {
-						this.State = common.StateExited
+						this.Status = types.ProcStatusExited
 					} else {
-						this.State = common.StateStopped
+						this.Status = types.ProcStatusStopped
 					}
 					this.mu.Unlock()
 				} else {
 					this.mu.Lock()
-					this.State = common.StateStopped
+					this.Status = types.ProcStatusStopped
 					this.mu.Unlock()
 				}
 				callback(this)
@@ -146,10 +146,10 @@ func (this *Process) wait(callback func(process *Process)) error {
 	return nil
 }
 
-func (this *Process) GetState() string {
+func (this *Process) GetStatus() types.ProcStatus {
 	this.mu.Lock()
 	defer this.mu.Unlock()
-	return this.State
+	return this.Status
 }
 
 func (this *Process) CPUPercent() float64 {
@@ -186,7 +186,7 @@ func NewProcess(pid int32) (*Process, error) {
 
 	this := &Process{
 		CreateTime: createTime,
-		State:      common.StateRunning,
+		Status:     types.ProcStatusRunning,
 		Pid:        pid,
 		process:    p,
 	}
@@ -272,7 +272,7 @@ func loadProcess(dataPath string) {
 	processFile = path.Join(dataPath, "exec_info.json")
 	if err := util.DecodeJsonFromFile(&processMap, processFile); err == nil {
 		for _, p := range processMap {
-			if p.GetState() != common.StateRunning {
+			if p.GetStatus() != types.ProcStatusRunning {
 				waitProcess[p.ID] = p
 				continue
 			}
@@ -289,7 +289,7 @@ func loadProcess(dataPath string) {
 					waitProcess[proc.ID] = proc
 					proc.waitNoChild(func(process *Process) {
 						er.Submit(func() {
-							if process.GetState() == common.StateStopped {
+							if process.GetStatus() == types.ProcStatusStopped {
 								delete(waitProcess, process.ID)
 							}
 							saveProcess()

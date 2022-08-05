@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/drpc"
 	"io/ioutil"
 	"log"
@@ -54,7 +55,7 @@ func (er *Executor) onProcExec(replier *drpc.Replier, req interface{}) {
 	msg := req.(*protocol.ProcessExecReq)
 	log.Printf("onProcExec id:%d name:%s dir:%s args:%v", msg.GetId(), msg.GetName(), msg.GetDir(), msg.GetArgs())
 
-	if p, ok := waitProcess[msg.GetId()]; ok && p.GetState() == common.StateRunning {
+	if p, ok := waitProcess[msg.GetId()]; ok && p.GetStatus() == types.ProcStatusRunning {
 		_ = replier.Reply(&protocol.ProcessExecResp{Pid: int32(p.Pid)}, nil)
 		return
 	}
@@ -114,7 +115,7 @@ func (er *Executor) onProcExec(replier *drpc.Replier, req interface{}) {
 	p.waitCmd(ecmd, func(process *Process) {
 		er.Submit(func() {
 			_ = errFile.Close()
-			if process.GetState() == common.StateStopped {
+			if process.GetStatus() == types.ProcStatusStopped {
 				delete(waitProcess, process.ID)
 			}
 			saveProcess()
@@ -140,16 +141,16 @@ func (er *Executor) onProcState(replier *drpc.Replier, req interface{}) {
 	states := map[int32]*protocol.ProcessState{}
 	for _, id := range msg.GetIds() {
 		state := &protocol.ProcessState{
-			State: common.StateStopped,
+			Status: string(types.ProcStatusStopped),
 		}
 		if p, ok := waitProcess[id]; ok {
 			state.Pid = p.Pid
-			state.State = p.GetState()
-			if state.State == common.StateExited {
+			state.Status = string(p.GetStatus())
+			if state.Status == string(types.ProcStatusExited) {
 				if data, err := ioutil.ReadFile(p.Stderr); err == nil {
 					state.ExitMsg = string(data)
 				}
-			} else if state.State == common.StateRunning {
+			} else if state.Status == string(types.ProcStatusRunning) {
 				state.Cpu = p.CPUPercent()
 				state.Mem = float64(p.MemoryPercent())
 			}

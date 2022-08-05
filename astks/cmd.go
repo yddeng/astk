@@ -1,16 +1,13 @@
 package astks
 
-import "regexp"
-
-type CmdType string
-
-const (
-	CmdTypeShell CmdType = "shell"
+import (
+	"github.com/yddeng/astk/pkg/types"
+	"regexp"
 )
 
 type Cmd struct {
 	ID       int                 `json:"id"`
-	Type     CmdType             `json:"type"`
+	Type     types.CmdType       `json:"type"`
 	Name     string              `json:"name"`
 	Dir      string              `json:"dir"`
 	Context  string              `json:"context"`

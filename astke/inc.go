@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/yddeng/astk/pkg/incIo"
 	"github.com/yddeng/astk/pkg/protocol"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"net"
@@ -12,7 +13,7 @@ import (
 type Channel struct {
 	ID             string
 	ChanID         int32
-	Type           string
+	Type           types.IncType
 	IP, Port       string
 	SrcIP, SrcPort string
 
@@ -23,7 +24,7 @@ var channels = map[int32]*Channel{}
 
 func (this *Channel) dial() (net.Conn, error) {
 	switch this.Type {
-	case "tcp", "http", "https":
+	case types.IncTypeHttp, types.IncTypeHttps, types.IncTypeTCP:
 		return net.Dial("tcp", net.JoinHostPort(this.IP, this.Port))
 	default:
 		return nil, fmt.Errorf("invaild type %s", this.Type)
@@ -49,7 +50,7 @@ func (er *Executor) onOpenChannel(replier *drpc.Replier, req interface{}) {
 	channel := &Channel{
 		ID:      msg.GetId(),
 		ChanID:  chanID,
-		Type:    msg.GetType(),
+		Type:    types.IncType(msg.GetType()),
 		IP:      msg.GetIp(),
 		Port:    msg.GetPort(),
 		SrcIP:   msg.GetSrcIp(),

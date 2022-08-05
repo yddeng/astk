@@ -1,8 +1,8 @@
 package astks
 
 import (
-	"github.com/yddeng/astk/pkg/common"
 	"github.com/yddeng/astk/pkg/protocol"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"sort"
@@ -21,7 +21,7 @@ func (*processHandler) Tags(wait *WaitConn, user string) {
 	}{Nodes: processMgr.TagNodes, Labels: processMgr.TagLabels})
 }
 
-func (*processHandler) findProcess(Nodes, Labels, Status map[string]struct{}) []*Process {
+func (*processHandler) findProcess(Nodes, Labels map[string]struct{}, Status map[types.ProcStatus]struct{}) []*Process {
 	s := make([]*Process, 0, len(processMgr.Process))
 	for _, v := range processMgr.Process {
 		if len(Nodes) > 0 {
@@ -54,11 +54,11 @@ func (*processHandler) findProcess(Nodes, Labels, Status map[string]struct{}) []
 }
 
 func (this *processHandler) List(wait *WaitConn, user string, req struct {
-	Nodes    map[string]struct{} `json:"nodes"`
-	Labels   map[string]struct{} `json:"labels"`
-	Status   map[string]struct{} `json:"status"`
-	PageNo   int                 `json:"pageNo"`
-	PageSize int                 `json:"pageSize"`
+	Nodes    map[string]struct{}           `json:"nodes"`
+	Labels   map[string]struct{}           `json:"labels"`
+	Status   map[types.ProcStatus]struct{} `json:"status"`
+	PageNo   int                           `json:"pageNo"`
+	PageSize int                           `json:"pageSize"`
 }) {
 	//log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
@@ -107,7 +107,7 @@ func (this *processHandler) Create(wait *WaitConn, user string, req struct {
 	p.Config = req.Config
 	p.Command = req.Command
 	p.State = ProcessState{
-		Status: common.StateStopped,
+		Status: types.ProcStatusStopped,
 	}
 	p.Labels = req.Labels
 	p.Node = req.Node
@@ -147,8 +147,8 @@ func (this *processHandler) Update(wait *WaitConn, user string, req struct {
 	}
 
 	p, ok := processMgr.Process[req.ID]
-	if !ok || !(p.State.Status == common.StateStopped ||
-		p.State.Status == common.StateExited) {
+	if !ok || !(p.State.Status == types.ProcStatusStopped ||
+		p.State.Status == types.ProcStatusExited) {
 		wait.SetResult("当前状态不允许修改", nil)
 		return
 	}
@@ -175,8 +175,8 @@ func (*processHandler) Delete(wait *WaitConn, user string, req struct {
 	defer func() { wait.Done() }()
 
 	p, ok := processMgr.Process[req.ID]
-	if !ok || !(p.State.Status == common.StateStopped ||
-		p.State.Status == common.StateExited) {
+	if !ok || !(p.State.Status == types.ProcStatusStopped ||
+		p.State.Status == types.ProcStatusExited) {
 		wait.SetResult("当前状态不允许删除", nil)
 		return
 	}
@@ -192,8 +192,8 @@ func (*processHandler) Start(wait *WaitConn, user string, req struct {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	p, ok := processMgr.Process[req.ID]
 	if !ok ||
-		!(p.State.Status == common.StateStopped ||
-			p.State.Status == common.StateExited) {
+		!(p.State.Status == types.ProcStatusStopped ||
+			p.State.Status == types.ProcStatusExited) {
 		wait.SetResult("当前状态不允许启动", nil)
 		wait.Done()
 		return
@@ -216,7 +216,7 @@ func (*processHandler) Start(wait *WaitConn, user string, req struct {
 		wait.Done()
 	} else {
 		p.State = ProcessState{
-			Status:    common.StateStarting,
+			Status:    types.ProcStatusStarting,
 			Timestamp: NowUnix(),
 		}
 		saveStore(snProcessMgr)
@@ -229,7 +229,7 @@ func (*processHandler) Stop(wait *WaitConn, user string, req struct {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 
 	p, ok := processMgr.Process[req.ID]
-	if !ok || p.State.Status != common.StateRunning {
+	if !ok || p.State.Status != types.ProcStatusRunning {
 		wait.SetResult("当前状态不允许停止", nil)
 		wait.Done()
 		return
@@ -261,20 +261,23 @@ func (*processHandler) Stop(wait *WaitConn, user string, req struct {
 		wait.SetResult(err.Error(), nil)
 		wait.Done()
 	} else {
-		p.State.Status = common.StateStopping
+		p.State.Status = types.ProcStatusStopping
 		p.State.Timestamp = NowUnix()
 		saveStore(snProcessMgr)
 	}
 }
 
 func (this *processHandler) BatchStart(wait *WaitConn, user string, req struct {
-	Nodes  map[string]struct{} `json:"nodes"`
-	Labels map[string]struct{} `json:"labels"`
-	Status map[string]struct{} `json:"status"`
+	Nodes  map[string]struct{}           `json:"nodes"`
+	Labels map[string]struct{}           `json:"labels"`
+	Status map[types.ProcStatus]struct{} `json:"status"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 
-	req.Status = map[string]struct{}{"exited": {}, "stopped": {}}
+	req.Status = map[types.ProcStatus]struct{}{
+		types.ProcStatusExited:  {},
+		types.ProcStatusStopped: {},
+	}
 	s := this.findProcess(req.Nodes, req.Labels, req.Status)
 	// 优先级低的最先启动
 	sort.Slice(s, func(i, j int) bool {
@@ -288,7 +291,7 @@ func (this *processHandler) BatchStart(wait *WaitConn, user string, req struct {
 
 		if err := p.start(node, func(code string, err error) {}); err == nil {
 			p.State = ProcessState{
-				Status:    common.StateStarting,
+				Status:    types.ProcStatusStarting,
 				Timestamp: NowUnix(),
 			}
 			saveStore(snProcessMgr)
@@ -299,13 +302,15 @@ func (this *processHandler) BatchStart(wait *WaitConn, user string, req struct {
 }
 
 func (this *processHandler) BatchStop(wait *WaitConn, user string, req struct {
-	Nodes  map[string]struct{} `json:"nodes"`
-	Labels map[string]struct{} `json:"labels"`
-	Status map[string]struct{} `json:"status"`
+	Nodes  map[string]struct{}           `json:"nodes"`
+	Labels map[string]struct{}           `json:"labels"`
+	Status map[types.ProcStatus]struct{} `json:"status"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 
-	req.Status = map[string]struct{}{"running": {}}
+	req.Status = map[types.ProcStatus]struct{}{
+		types.ProcStatusRunning: {},
+	}
 	s := this.findProcess(req.Nodes, req.Labels, req.Status)
 	// 优先级低的最后停止
 	sort.Slice(s, func(i, j int) bool {
@@ -323,7 +328,7 @@ func (this *processHandler) BatchStop(wait *WaitConn, user string, req struct {
 		}
 
 		if err := center.Go(node, rpcReq, drpc.DefaultRPCTimeout, func(i interface{}, e error) {}); err == nil {
-			p.State.Status = common.StateStopping
+			p.State.Status = types.ProcStatusStopping
 			p.State.Timestamp = NowUnix()
 			saveStore(snProcessMgr)
 		}
@@ -339,7 +344,7 @@ func (*processHandler) TailLog(wait *WaitConn, user string, req struct {
 	// log.Printf("%s by(%s) %v\n", wait.route, user, req)
 
 	p, ok := processMgr.Process[req.ID]
-	if !ok || !(p.State.Status == common.StateRunning || p.State.Status == common.StateStarting || p.State.Status == common.StateStopping) {
+	if !ok || !(p.State.Status == types.ProcStatusRunning || p.State.Status == types.ProcStatusStarting || p.State.Status == types.ProcStatusStopping) {
 		wait.SetResult("当前状态无日志", nil)
 		wait.Done()
 		return

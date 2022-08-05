@@ -1,6 +1,9 @@
 package astks
 
-import "log"
+import (
+	"github.com/yddeng/astk/pkg/types"
+	"log"
+)
 
 type monitorHandler struct{}
 
@@ -20,14 +23,14 @@ func (*monitorHandler) Info(wait *WaitConn, user string, req struct {
 }
 
 func (*monitorHandler) Update(wait *WaitConn, user string, req struct {
-	Type          string        `json:"type"`
-	Cpu           int           `json:"cpu"`
-	Mem           int           `json:"mem"`
-	Disk          int           `json:"disk"`
-	Interval      int64         `json:"interval"`
-	AlertInterval int64         `json:"continuityInterval"`
-	NotifyType    MsgNotifyType `json:"notifyType"`
-	NotifyServer  string        `json:"notifyServer"`
+	Type          string           `json:"type"`
+	Cpu           int              `json:"cpu"`
+	Mem           int              `json:"mem"`
+	Disk          int              `json:"disk"`
+	Interval      int64            `json:"interval"`
+	AlertInterval int64            `json:"continuityInterval"`
+	NotifyType    types.NotifyType `json:"notifyType"`
+	NotifyServer  string           `json:"notifyServer"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 

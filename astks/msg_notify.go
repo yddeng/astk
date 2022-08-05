@@ -2,32 +2,24 @@ package astks
 
 import (
 	"fmt"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/dhttp"
 )
 
-type MsgNotifyType string
-
-const (
-	// https://open.work.weixin.qq.com/help2/pc/14931?person_id=1&is_tencent=
-	MsgNotifyTypeWeixin MsgNotifyType = "weixin"
-	// 自定义类型
-	MsgNotifyTypeCallback MsgNotifyType = "callback"
-)
-
 type Notify struct {
-	NotifyType   MsgNotifyType `json:"notifyType"`
-	NotifyServer string        `json:"notifyServer"`
+	NotifyType   types.NotifyType `json:"notifyType"`
+	NotifyServer string           `json:"notifyServer"`
 }
 
-func (this *Notify) Type() MsgNotifyType {
+func (this *Notify) Type() types.NotifyType {
 	return this.NotifyType
 }
 
 func (this *Notify) Push(msg string) error {
 	switch this.NotifyType {
-	case MsgNotifyTypeWeixin:
+	case types.NotifyTypeWeixin:
 		return this.pushWeixinMessage(msg)
-	case MsgNotifyTypeCallback:
+	case types.NotifyTypeCallback:
 		return this.pushCallbackMessage(msg)
 	default:
 		return fmt.Errorf("push notify type %s invaild", this.NotifyType)

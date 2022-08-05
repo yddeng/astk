@@ -3,6 +3,7 @@ package astks
 import (
 	"fmt"
 	"github.com/yddeng/astk/pkg/protocol"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/drpc"
 	"log"
 	"sort"
@@ -46,7 +47,7 @@ func (*cmdHandler) List(wait *WaitConn, user string, req struct {
 }
 
 func (*cmdHandler) Create(wait *WaitConn, user string, req struct {
-	Type    string            `json:"type"`
+	//Type    types.CmdType     `json:"type"`
 	Name    string            `json:"name"`
 	Dir     string            `json:"dir"`
 	Context string            `json:"context"`
@@ -71,7 +72,7 @@ func (*cmdHandler) Create(wait *WaitConn, user string, req struct {
 	cmdMgr.GenID++
 	id := cmdMgr.GenID
 	cmd := &Cmd{
-		Type:     CmdType(req.Type),
+		Type:     types.CmdTypeShell,
 		ID:       id,
 		Name:     req.Name,
 		Dir:      req.Dir,
@@ -201,7 +202,7 @@ func (*cmdHandler) Exec(wait *WaitConn, user string, req struct {
 
 	// 执行类型
 	switch cmd.Type {
-	case CmdTypeShell:
+	case types.CmdTypeShell:
 		rpcReq.Name = "/bin/sh"
 		rpcReq.Args = []string{"-c", context}
 	default:

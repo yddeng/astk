@@ -2,6 +2,7 @@ package astks
 
 import (
 	token2 "github.com/yddeng/astk/pkg/token"
+	"github.com/yddeng/astk/pkg/types"
 	"log"
 	"sort"
 )
@@ -44,18 +45,18 @@ func (*incHandler) List(wait *WaitConn, user string, req struct {
 }
 
 func (*incHandler) Create(wait *WaitConn, user string, req struct {
-	Type       IncType `json:"type"`
-	RemotePort string  `json:"remotePort"` // 访问端口
-	Node       string  `json:"node"`       // 被代理的节点
-	LocalIP    string  `json:"localIp"`    // 节点被代理地址
-	LocalPort  string  `json:"localPort"`  // 节点被代理端口
-	Desc       string  `json:"desc"`
+	Type       types.IncType `json:"type"`
+	RemotePort string        `json:"remotePort"` // 访问端口
+	Node       string        `json:"node"`       // 被代理的节点
+	LocalIP    string        `json:"localIp"`    // 节点被代理地址
+	LocalPort  string        `json:"localPort"`  // 节点被代理端口
+	Desc       string        `json:"desc"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 	defer func() { wait.Done() }()
 
 	switch req.Type {
-	case IncTypeTCP, IncTypeHttp, IncTypeHttps:
+	case types.IncTypeTCP, types.IncTypeHttp, types.IncTypeHttps:
 	default:
 		wait.SetResult("类型错误", nil)
 		return

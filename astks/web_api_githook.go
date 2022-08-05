@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-playground/webhooks/github"
 	token2 "github.com/yddeng/astk/pkg/token"
+	"github.com/yddeng/astk/pkg/types"
 	"log"
 	"sort"
 )
@@ -44,11 +45,11 @@ func (*githookHandler) List(wait *WaitConn, user string, req struct {
 }
 
 func (this *githookHandler) Create(wait *WaitConn, user string, req struct {
-	Type    GitType `json:"type"`
-	Name    string  `json:"name"`
-	Address string  `json:"address"` // 仓库地址
-	Token   string  `json:"token"`
-	Notify  Notify  `json:"notify"`
+	Type    types.GitType `json:"type"`
+	Name    string        `json:"name"`
+	Address string        `json:"address"` // 仓库地址
+	Token   string        `json:"token"`
+	Notify  Notify        `json:"notify"`
 }) {
 	log.Printf("%s by(%s) %v\n", wait.route, user, req)
 
@@ -95,7 +96,7 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 	fmt.Println(key, hook)
 
 	switch hook.Type {
-	case GitTypeGithub:
+	case types.GitTypeGithub:
 		if hook.Github == nil {
 			var err error
 			if hook.Github, err = github.New(github.Options.Secret("")); err != nil {
@@ -126,7 +127,7 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 			fmt.Printf("%+v", pullRequest)
 		}
 
-	case GitTypeGitlab:
+	case types.GitTypeGitlab:
 	default:
 
 	}

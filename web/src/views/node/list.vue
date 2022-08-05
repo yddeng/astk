@@ -68,7 +68,12 @@
           <a-row><a-col :span="4" :offset="1">网络</a-col><a-col :span="16" ><a-icon type="arrow-down" />0B/s<a-icon type="arrow-up" />0B/s</a-col></a-row>
           <a-row><a-col :span="4" :offset="1">硬盘</a-col><a-col :span="16" ><a-progress :percent="0" /></a-col></a-row>
           <a-row><a-col :span="4" :offset="1">状态</a-col><a-col :span="16" ><span style="color:red">离线</span></a-col></a-row>
-          <a slot="extra" @click="nodeRemove(item.name)"><a-icon style="color:red" type="delete"/></a>
+          <a-popconfirm
+            slot="extra"
+            title="确定要删除吗？"
+            @confirm="nodeRemove(item.name)">
+            <a-icon type="delete"/>
+          </a-popconfirm>
         </a-card>
       </a-list-item>
     </a-list>

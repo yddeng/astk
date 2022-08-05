@@ -50,7 +50,7 @@ message processStateResp{
 }
 message processState{
     int32  pid     = 1;
-    string state   = 2;
+    string status  = 2;
     string exitMsg = 3;
     double cpu     = 4;
     double mem     = 5;

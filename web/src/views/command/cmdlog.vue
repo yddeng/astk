@@ -66,7 +66,9 @@ import LogInfo from './modal/LogInfo'
 const columns = [
   {
     title: '执行ID',
-    dataIndex: 'id'
+    dataIndex: 'id',
+    width:'80px',
+    align: 'center',
   },
   {
     title: '执行内容',
