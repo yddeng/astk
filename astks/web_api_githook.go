@@ -31,7 +31,7 @@ func (*githookHandler) List(wait *WaitConn, user string, req struct {
 		s = append(s, n)
 	}
 	sort.Slice(s, func(i, j int) bool {
-		return s[i].Key > s[j].Key
+		return s[i].ID > s[j].ID
 	})
 
 	start, end := listRange(req.PageNo, req.PageSize, len(nodeMgr.Nodes))
@@ -61,19 +61,19 @@ func (this *githookHandler) Create(wait *WaitConn, user string, req struct {
 		Notify:  req.Notify,
 	}
 
-	hookKey := token2.GenToken(22)
+	id := token2.GenToken(22)
 	for {
-		if _, ok := gitHookMgr.Hooks[hookKey]; !ok {
+		if _, ok := gitHookMgr.Hooks[id]; !ok {
 			break
 		} else {
-			hookKey = token2.GenToken(22)
+			id = token2.GenToken(22)
 		}
 	}
 
-	hook.Key = hookKey
-	hook.WebHook = this.genWebHook(hookKey)
+	hook.ID = id
+	hook.WebHook = this.genWebHook(id)
 
-	gitHookMgr.Hooks[hookKey] = hook
+	gitHookMgr.Hooks[id] = hook
 	saveStore(snGitHookMgr)
 
 	wait.Done()

@@ -246,15 +246,6 @@ export default {
       deep: true,
       immediate: true
     },
-    option:{
-      handler(nval){
-        if (nval === 'edit') {
-          this.title = '修改配置'
-        }else{
-          this.title = '新增配置'
-        }
-      }
-    },
     visible(nv){
       if (nv){
         this.onVisible()
@@ -265,6 +256,11 @@ export default {
     onVisible(){
       // console.log("visible");
       this.allLabels = this.labels
+      if (this.option === 'edit') {
+          this.title = '修改配置'
+        }else{
+          this.title = '新增配置'
+        }
     },
     removeCfg (item) {
       console.log(item)

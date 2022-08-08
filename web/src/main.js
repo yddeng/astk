@@ -7,6 +7,10 @@ import 'ant-design-vue/dist/antd.css';
 
 import './global.css'
 
+// http://momentjs.cn/docs/#/use-it/
+import moment from 'moment';
+moment.locale('zh-cn');
+
 Vue.config.productionTip = false
 Vue.use(Antd);
 
@@ -19,9 +23,7 @@ Vue.component('pro-layout', ProLayout)
 Vue.component('page-container', PageHeaderWrapper)
 Vue.component('page-header-wrapper', PageHeaderWrapper)
 
-// http://momentjs.cn/docs/#/use-it/
-import moment from 'moment'
-moment.locale('zh-cn')
+
 
 const allowList = ['login'] // no redirect allowList
 const loginRoutePath = '/auth/login'

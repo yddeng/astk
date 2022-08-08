@@ -76,50 +76,47 @@
       :data-source="data.process"
     >
       <a-list-item slot="renderItem" slot-scope="item">
-          <a-card size="default" :bordered="false">
-            <!-- <template slot="extra" >
-              <a-icon v-if="item.bell" type="alert" theme="twoTone" @click="processBell(item.id,false)" />
-              <a-icon v-else type="alert" @click="processBell(item.id,true)" />
-            </template>  -->
-            <a-card-meta :title="item.name">
-              <!-- <a-avatar slot="avatar" style="color: #f56a00; backgroundColor: #fde3cf">
-              {{item.name.slice(0,1)}}
-              </a-avatar> -->
-              <template slot="description"> 
-                <div style="margin-bottom: 10px;">
-                  <a-popover v-if="item.state.status==='exited'" placement="topRight" trigger="click">
-                    <span slot="content" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
-                    <a-tag :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
-                  </a-popover>
-                  <a-tag v-else :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
-                  <span v-if="item.state.status==='running'">
-                    Pid:{{ item.state.pid }}, Age: {{ item.state.timestamp | showAge }}
-                  </span> 
-                </div>
-                <a-row type="flex" justify="space-around">
-                  <a-col :span="12">
-                  <a-statistic
-                    title="CPU使用率"
-                    :value="item.state.cpu"
-                    :precision="2"
-                    suffix="%"
-                    :value-style="{color:progressColor(item.state.cpu)}"
-                  >
-                  </a-statistic>
-                </a-col>
-                <a-col :span="12">
-                  <a-statistic
-                    title="内存使用率"
-                    :value="item.state.mem"
-                    :precision="2"
-                    suffix="%"
-                    :value-style="{color:progressColor(item.state.mem)}"
-                  >
-                  </a-statistic>
-                </a-col>
-              </a-row>
-             </template>
-            </a-card-meta>
+          <a-card size="small" :bordered="false" :title="item.name">
+            <template slot="extra">
+                <a-popover v-if="item.state.status==='exited'" placement="topRight" trigger="click">
+                  <span slot="content" style="white-space:pre-wrap;">{{ item.state.exitMsg }}</span>
+                  <a-tag :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
+                </a-popover>
+                <a-tag v-else :color="tagStatusColor(item.state.status)">{{item.state.status}}</a-tag>
+            </template>
+            
+            <a-row type="flex" justify="end">
+              <a-col :span="12">
+                <a-statistic title="PID" :value="item.state.status ==='running'? item.state.pid:0"/>
+              </a-col>
+              <a-col :span="12">
+                <a-statistic title="运行时长"
+                  :value="item.state.status ==='running'? showAge(item.state.timestamp):'--'"
+                />
+              </a-col>
+            </a-row>
+            <a-row type="flex" justify="end">
+              <a-col :span="12">
+                <a-statistic
+                  title="CPU使用率"
+                  :value="item.state.cpu"
+                  :precision="2"
+                  suffix="%"
+                  :value-style="{color:progressColor(item.state.cpu)}"
+                >
+                </a-statistic>
+              </a-col>
+              <a-col :span="12">
+                <a-statistic
+                  title="内存使用率"
+                  :value="item.state.mem"
+                  :precision="2"
+                  suffix="%"
+                  :value-style="{color:progressColor(item.state.mem)}"
+                >
+                </a-statistic>
+              </a-col>
+            </a-row>
                       
             <template slot="actions" >
               <a v-if="item.state.status === 'exited' || item.state.status === 'stopped'" @click="startProcess(item.id)">启动</a>
@@ -314,6 +311,10 @@ export default {
     clearInterval(this.tailTicker)
   },
   methods: {
+    showAge (time) {
+      moment.locale('zh-cn')
+      return moment.unix(time).fromNow(true)
+    },
     loadTags () {
       tags()
       .then(res => {

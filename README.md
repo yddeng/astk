@@ -15,7 +15,7 @@ web 节点筛选、分组筛选
 5. shell 
 
 
-综合管理平台 Integrated management platform imp
+综合管理平台 Integrated management platform SMP
 
 首页
 
