@@ -2,8 +2,8 @@ package astks
 
 import (
 	"fmt"
-	"github.com/go-playground/webhooks/github"
 	"github.com/tidwall/gjson"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/dhttp"
 	"net/http"
 	"os"
@@ -19,17 +19,17 @@ func TestGithookHandler_Create(t *testing.T) {
 	req2, _ := dhttp.NewRequest(fmt.Sprintf("http://%s/githook/create", address), "POST")
 	req2.SetHeader("Access-Token", gjson.Get(ret, "data.token").String())
 	req2, _ = req2.WriteJSON(struct {
-		Type    GitType `json:"type"`
-		Name    string  `json:"name"`
-		Address string  `json:"address"` // 仓库地址
-		Token   string  `json:"token"`
-		Notify  Notify  `json:"notify"`
-	}{Type: GitTypeGithub,
+		Type    types.GitType `json:"type"`
+		Name    string        `json:"name"`
+		Address string        `json:"address"` // 仓库地址
+		Token   string        `json:"token"`
+		Notify  Notify        `json:"notify"`
+	}{Type: types.GitTypeGithub,
 		Name:    "test",
 		Address: "https://github.com/yddeng/webhook",
 		Token:   "123456",
 		Notify: Notify{
-			NotifyType:   MsgNotifyTypeCallback,
+			NotifyType:   types.NotifyTypeCallback,
 			NotifyServer: "http://127.0.0.1:24563/hook",
 		}})
 
@@ -74,28 +74,19 @@ func TestGithookHandler_List(t *testing.T) {
 	t.Log(ret)
 }
 
-func TestGithookHandler_Hook(t *testing.T) {
+func TestGithookHandler_Hook_Push(t *testing.T) {
 	tests := []struct {
-		name     string
-		event    github.Event
-		typ      interface{}
 		filename string
 		headers  http.Header
 	}{
 		{
-			name:     "PullRequestEvent",
-			event:    github.PullRequestEvent,
-			typ:      github.PullRequestPayload{},
-			filename: "../testdata/github/pull-request.json",
+			filename: "../testdata/gitlab/push-event.json",
 			headers: http.Header{
-				"X-Github-Event":  []string{"pull_request"},
-				"X-Hub-Signature": []string{"sha1=123456"},
+				"X-Gitlab-Event": []string{"Push Hook"},
+				"X-Gitlab-Token": []string{"sha1=123456"},
 			},
 		},
 		{
-			name:     "PushEvent",
-			event:    github.PushEvent,
-			typ:      github.PushPayload{},
 			filename: "../testdata/github/push.json",
 			headers: http.Header{
 				"X-Github-Event":  []string{"push"},

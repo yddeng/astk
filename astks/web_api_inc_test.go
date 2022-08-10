@@ -3,6 +3,7 @@ package astks
 import (
 	"fmt"
 	"github.com/tidwall/gjson"
+	"github.com/yddeng/astk/pkg/types"
 	"github.com/yddeng/dnet/dhttp"
 	"testing"
 )
@@ -16,13 +17,13 @@ func TestIncHandler_Create(t *testing.T) {
 	req2, _ := dhttp.NewRequest(fmt.Sprintf("http://%s/inc/create", address), "POST")
 	req2.SetHeader("Access-Token", gjson.Get(ret, "data.token").String())
 	req2, _ = req2.WriteJSON(struct {
-		Type       IncType `json:"type"`
-		RemotePort string  `json:"remotePort"` // 访问端口
-		Node       string  `json:"node"`       // 被代理的节点
-		LocalIP    string  `json:"localIp"`    // 节点被代理地址
-		LocalPort  string  `json:"localPort"`  // 节点被代理端口
+		Type       types.IncType `json:"type"`
+		RemotePort string        `json:"remotePort"` // 访问端口
+		Node       string        `json:"node"`       // 被代理的节点
+		LocalIP    string        `json:"localIp"`    // 节点被代理地址
+		LocalPort  string        `json:"localPort"`  // 节点被代理端口
 	}{
-		Type:       IncTypeTCP,
+		Type:       types.IncTypeTCP,
 		RemotePort: "22335",
 		Node:       "astke",
 		LocalIP:    "10.128.2.123",

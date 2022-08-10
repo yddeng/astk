@@ -250,6 +250,7 @@ func initHandler(app *gin.Engine) {
 	gitHookGroup := app.Group("/githook")
 	gitHookGroup.POST("/list", warpHandle(gitHookHandle.List))
 	gitHookGroup.POST("/create", warpHandle(gitHookHandle.Create))
+	gitHookGroup.POST("/delete", warpHandle(gitHookHandle.Delete))
 	gitHookGroup.POST("/s/:key", func(ctx *gin.Context) {
 		route := getCurrentRoute(ctx)
 		wait := newWaitConn(ctx, route)

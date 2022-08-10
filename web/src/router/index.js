@@ -70,7 +70,7 @@ export const asyncRouterMap = [
         name:'git',
         path:'/git',
         meta:{title:'代码发布',icon:'github'},
-        component: () => import('@/layouts/BlankLayout'),
+        component: () => import('@/views/git/list'),
       },
       {
         name:'intranet',
