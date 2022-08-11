@@ -26,11 +26,11 @@ type GitHookMgr struct {
 }
 
 func (this *GitHook) makePushMessage(
-	name, branch, user string,
-	cmtIds, cmtAuthor, cmtMsgs []string, cmtCnt int,
-) string {
+	name, branch, homepage, user string,
+	cmtIds, cmtAuthor, cmtMsgs []string,
+	cmtCnt int) string {
 
-	title := "[%s:%s] %s 推送了 %d 个提交"
+	title := "[%s:%s](%s) push %d new commits by %s"
 	cmt := "  %s %s - %s"
 
 	// 仅显示最近10个提交
@@ -38,27 +38,24 @@ func (this *GitHook) makePushMessage(
 		cmtIds = cmtIds[0:10]
 	}
 
-	ret := fmt.Sprintf(title, name, branch, user, cmtCnt)
+	ret := fmt.Sprintf(title, name, branch, homepage, cmtCnt, user)
 	for i, id := range cmtIds {
 		ret += "\n" + fmt.Sprintf(cmt, id[0:8], cmtAuthor[i], cmtMsgs[i])
 	}
 	if cmtCnt > len(cmtIds) {
-		ret += "\n" + "..."
+		ret += "\n" + "  ..."
 	}
 	return ret
 }
 
-func (this *GitHook) makeMergeMessage(
-	name, branch, user string,
-	cmtIds, cmtAuthor, cmtMsgs []string,
-) string {
+func (this *GitHook) makeMergeMessage(name, user, action, event,
+	title, username, sourceBranch, targetBranch string) string {
 
-	title := "[%s] %s 创建一个合并请求 %s->%s"
-	cmt := "  %s %s - %s"
+	str := "[%s] %s %s %s\n" +
+		"  %s\n  %s:%s -> %s"
 
-	ret := fmt.Sprintf(title, name, branch, user, len(cmtIds))
-	for i, id := range cmtIds {
-		ret += "\n" + fmt.Sprintf(cmt, id[0:8], cmtAuthor[i], cmtMsgs[i])
-	}
+	ret := fmt.Sprintf(str, name, user, action, event,
+		title, username, sourceBranch, targetBranch)
+
 	return ret
 }

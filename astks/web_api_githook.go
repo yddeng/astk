@@ -97,7 +97,7 @@ func (*githookHandler) Delete(wait *WaitConn, user string, req struct {
 }
 
 var (
-	githubEvents = []github.Event{github.PushEvent}
+	githubEvents = []github.Event{github.PushEvent, github.PullRequestEvent}
 	gitlabEvents = []gitlab.Event{gitlab.PushEvents, gitlab.MergeRequestEvents}
 )
 
@@ -118,7 +118,7 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 	case types.GitTypeGithub:
 		if hook.Github == nil {
 			var err error
-			if hook.Github, err = github.New(github.Options.Secret("")); err != nil {
+			if hook.Github, err = github.New(github.Options.Secret(hook.Token)); err != nil {
 				log.Println(err)
 				return
 			}
@@ -133,6 +133,7 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 			}
 		}
 
+		// https://docs.github.com/cn/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
 		switch payload.(type) {
 		case github.PushPayload:
 			release := payload.(github.PushPayload)
@@ -148,20 +149,29 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 
 			msg := hook.makePushMessage(release.Repository.Name,
 				strings.TrimPrefix(release.Ref, "refs/heads/"),
+				release.Repository.URL,
 				release.Pusher.Name,
 				cmtIds, cmtAus, cmtMsgs, len(cmtIds))
-			log.Println(msg)
+			fmt.Println(msg)
 
 		case github.PullRequestPayload:
-			pullRequest := payload.(github.PullRequestPayload)
-			// Do whatever you want from here...
-			fmt.Printf("%+v", pullRequest)
+			release := payload.(github.PullRequestPayload)
+
+			msg := hook.makeMergeMessage(release.Repository.Name,
+				release.Sender.Login,
+				release.Action,
+				"pull_request",
+				release.PullRequest.Title,
+				release.PullRequest.Head.User.Login,
+				release.PullRequest.Head.Ref,
+				release.PullRequest.Base.Ref)
+			fmt.Println(msg)
 		}
 
 	case types.GitTypeGitlab:
 		if hook.Gitlab == nil {
 			var err error
-			if hook.Gitlab, err = gitlab.New(gitlab.Options.Secret("")); err != nil {
+			if hook.Gitlab, err = gitlab.New(gitlab.Options.Secret(hook.Token)); err != nil {
 				log.Println(err)
 				return
 			}
@@ -176,6 +186,7 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 			}
 		}
 
+		// https://docs.gitlab.com/ce/user/project/integrations/webhooks.html
 		switch payload.(type) {
 		case gitlab.PushEventPayload:
 			release := payload.(gitlab.PushEventPayload)
@@ -191,14 +202,24 @@ func (this *githookHandler) Hook(wait *WaitConn) {
 
 			msg := hook.makePushMessage(release.Repository.Name,
 				strings.TrimPrefix(release.Ref, "refs/heads/"),
+				release.Repository.Homepage,
 				release.UserName,
 				cmtIds, cmtAus, cmtMsgs, int(release.TotalCommitsCount))
-			log.Println(msg)
+			fmt.Println(msg)
 
 		case gitlab.MergeRequestEventPayload:
-			pullRequest := payload.(gitlab.MergeRequestEventPayload)
-			// Do whatever you want from here...
-			fmt.Printf("%+v", pullRequest)
+			release := payload.(gitlab.MergeRequestEventPayload)
+
+			msg := hook.makeMergeMessage(release.Repository.Name,
+				release.User.Name,
+				release.ObjectAttributes.Action,
+				"merge_request",
+				release.ObjectAttributes.Title,
+				release.ObjectAttributes.Source.Namespace,
+				release.ObjectAttributes.SourceBranch,
+				release.ObjectAttributes.TargetBranch)
+			fmt.Println(msg)
+
 		}
 	default:
 
