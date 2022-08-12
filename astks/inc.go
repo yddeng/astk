@@ -21,6 +21,7 @@ type Inc struct {
 	Desc       string        `json:"desc"`
 
 	listener net.Listener
+	chanCnt  int32
 	channels map[int32]*incIo.Channel
 }
 
@@ -31,6 +32,7 @@ func (this *Inc) opened() bool {
 func (this *Inc) close(chanID int32) {
 	taskQueue.Submit(func() {
 		//log.Printf("channel %d closed", chanID)
+		this.chanCnt -= 1
 		delete(this.channels, chanID)
 	})
 }
@@ -54,6 +56,8 @@ func (this *Inc) startTcpListener() (err error) {
 	if err != nil {
 		return
 	}
+	this.chanCnt = 0
+	this.channels = map[int32]*incIo.Channel{}
 
 	go func() {
 		for {
@@ -68,6 +72,12 @@ func (this *Inc) startTcpListener() (err error) {
 			}
 
 			taskQueue.Submit(func() {
+				if this.chanCnt >= 50 {
+					log.Println("链接超过上限")
+					c.Close()
+					return
+				}
+
 				node, ok := nodeMgr.Nodes[this.Node]
 				if !ok || !node.Online() {
 					log.Printf("节点%s不存在或不在线", this.Node)
@@ -76,6 +86,7 @@ func (this *Inc) startTcpListener() (err error) {
 					return
 				}
 
+				this.chanCnt++
 				incMgr.genID++
 				this.openChannel(node, c, incMgr.genID)
 			})
